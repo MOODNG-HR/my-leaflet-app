@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "연차 정산 도구"
+description = "근로자의 연차 신청을 자동으로 반영하고, 승인 현황과 잔여 연차를 관리하는 한국어 연차 정산 웹앱"
+version = "1.0.0"
+id = "artifacts/annual-leave-manager"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22719
+
+[services.development]
+run = "pnpm --filter @workspace/annual-leave-manager run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/annual-leave-manager", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/annual-leave-manager/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22719"
+BASE_PATH = "/"

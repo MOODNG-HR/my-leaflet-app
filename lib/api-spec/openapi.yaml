@@ -10,6 +10,12 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: dashboard
+    description: Dashboard summaries
+  - name: employees
+    description: Employee directory and leave balances
+  - name: leave-requests
+    description: Annual leave request workflows
 paths:
   /healthz:
     get:
@@ -24,7 +30,150 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get leave management dashboard summary
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+  /employees:
+    get:
+      operationId: getEmployees
+      tags: [employees]
+      summary: List employees with current leave balances
+      parameters:
+        - $ref: "#/components/parameters/Search"
+      responses:
+        "200":
+          description: Employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Employee"
+  /employees/{id}/balance:
+    get:
+      operationId: getEmployeeBalance
+      tags: [employees]
+      summary: Get an employee's leave balance
+      parameters:
+        - $ref: "#/components/parameters/EmployeeId"
+      responses:
+        "200":
+          description: Leave balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveBalance"
+        "404":
+          description: Employee not found
+  /leave-requests:
+    get:
+      operationId: getLeaveRequests
+      tags: [leave-requests]
+      summary: List leave requests
+      parameters:
+        - $ref: "#/components/parameters/Status"
+        - $ref: "#/components/parameters/Search"
+      responses:
+        "200":
+          description: Leave requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaveRequest"
+    post:
+      operationId: createLeaveRequest
+      tags: [leave-requests]
+      summary: Submit an annual leave request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveRequestInput"
+      responses:
+        "201":
+          description: Created leave request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequest"
+        "400":
+          description: Invalid request
+  /leave-requests/{id}:
+    get:
+      operationId: getLeaveRequest
+      tags: [leave-requests]
+      summary: Get a leave request
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Leave request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequest"
+        "404":
+          description: Leave request not found
+  /leave-requests/{id}/status:
+    patch:
+      operationId: updateLeaveRequestStatus
+      tags: [leave-requests]
+      summary: Approve or reject a leave request
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveRequestStatusInput"
+      responses:
+        "200":
+          description: Updated leave request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequest"
+        "404":
+          description: Leave request not found
 components:
+  parameters:
+    EmployeeId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: number
+    RequestId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: number
+    Search:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+    Status:
+      name: status
+      in: query
+      required: false
+      schema:
+        $ref: "#/components/schemas/LeaveRequestStatus"
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +182,163 @@ components:
           type: string
       required:
         - status
+    Employee:
+      type: object
+      required: [id, name, department, role, joinedAt, annualAllowance, usedDays, pendingDays, remainingDays]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        department:
+          type: string
+        role:
+          type: string
+        joinedAt:
+          type: string
+          format: date
+        annualAllowance:
+          type: number
+        usedDays:
+          type: number
+        pendingDays:
+          type: number
+        remainingDays:
+          type: number
+    LeaveBalance:
+      type: object
+      required: [employeeId, annualAllowance, usedDays, pendingDays, remainingDays]
+      properties:
+        employeeId:
+          type: number
+        annualAllowance:
+          type: number
+        usedDays:
+          type: number
+        pendingDays:
+          type: number
+        remainingDays:
+          type: number
+    LeaveRequestStatus:
+      type: string
+      enum: [pending, approved, rejected, cancelled]
+    LeaveType:
+      type: string
+      enum: [annual, half_day_am, half_day_pm, personal]
+    LeaveRequest:
+      type: object
+      required: [id, employeeId, employeeName, department, leaveType, startDate, endDate, days, reason, status, createdAt]
+      properties:
+        id:
+          type: number
+        employeeId:
+          type: number
+        employeeName:
+          type: string
+        department:
+          type: string
+        leaveType:
+          $ref: "#/components/schemas/LeaveType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        days:
+          type: number
+        reason:
+          type: string
+        status:
+          $ref: "#/components/schemas/LeaveRequestStatus"
+        createdAt:
+          type: string
+          format: date-time
+        processedAt:
+          type: ["string", "null"]
+          format: date-time
+        rejectionReason:
+          type: ["string", "null"]
+    LeaveRequestInput:
+      type: object
+      required: [employeeId, leaveType, startDate, endDate, days, reason]
+      properties:
+        employeeId:
+          type: number
+        leaveType:
+          $ref: "#/components/schemas/LeaveType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        days:
+          type: number
+          minimum: 0.5
+        reason:
+          type: string
+          minLength: 1
+    LeaveRequestStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: "#/components/schemas/LeaveRequestStatus"
+        rejectionReason:
+          type: ["string", "null"]
+    UpcomingLeave:
+      type: object
+      required: [id, employeeName, leaveType, startDate, endDate, days]
+      properties:
+        id:
+          type: number
+        employeeName:
+          type: string
+        leaveType:
+          $ref: "#/components/schemas/LeaveType"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        days:
+          type: number
+    MonthlyLeaveUsage:
+      type: object
+      required: [month, days]
+      properties:
+        month:
+          type: string
+        days:
+          type: number
+    DashboardSummary:
+      type: object
+      required: [year, annualAllowance, usedDays, remainingDays, pendingDays, employeeCount, pendingRequestCount, approvedRequestCount, upcomingLeaves, monthlyUsage]
+      properties:
+        year:
+          type: number
+        annualAllowance:
+          type: number
+        usedDays:
+          type: number
+        remainingDays:
+          type: number
+        pendingDays:
+          type: number
+        employeeCount:
+          type: number
+        pendingRequestCount:
+          type: number
+        approvedRequestCount:
+          type: number
+        upcomingLeaves:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpcomingLeave"
+        monthlyUsage:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonthlyLeaveUsage"
 
