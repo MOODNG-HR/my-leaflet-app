@@ -41,6 +41,7 @@ jobs:
           PORT: "3000"
           BASE_PATH: /my-leaflet-app/
           NODE_ENV: production
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
