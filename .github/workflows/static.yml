@@ -32,7 +32,7 @@ jobs:
         with:
           version: 9
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
         working-directory: artifacts/annual-leave-manager
       - name: Build
         run: pnpm build
