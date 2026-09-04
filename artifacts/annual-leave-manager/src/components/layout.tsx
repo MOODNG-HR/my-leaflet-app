@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { CalendarDays, CalendarOff, ChevronRight, ClipboardCheck, LayoutDashboard, LogOut, Menu, User, Users, X } from 'lucide-react';
+import { CalendarDays, CalendarOff, ClipboardCheck, LayoutDashboard, LogOut, Menu, Users, X } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useClerk, useUser } from '@clerk/react';
 import { getGetMyEmployeeQueryKey, useGetMyEmployee } from '@workspace/api-client-react';
@@ -24,75 +24,96 @@ export function AppShell({ children }: { children: ReactNode }) {
   }).data;
 
   const userName = profile?.name || user?.firstName || user?.fullName || user?.username || '사용자';
-  const companyName = profile?.companyName || '우리 회사';
+  const companyName = profile?.companyName || '무등기업';
   const visibleNavItems = profile?.role === '관리자'
     ? navItems
     : navItems.filter(({ href }) => href === '/' || href === '/my-leave');
   
   return (
-    <div className="app-shell noise">
-      <header className="fixed inset-x-0 top-0 z-40 flex h-[68px] items-center justify-between border-b border-[hsl(var(--border))] bg-[hsl(var(--background)/.9)] px-5 backdrop-blur-md md:hidden">
-        <Link href="/" onClick={() => setMobileOpen(false)} data-testid="link-mobile-logo" className="flex items-center gap-2.5">
+    <div className="app-shell flex min-h-[100dvh]">
+      {/* Mobile header */}
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-[hsl(var(--border))] bg-white px-4 md:hidden">
+        <Link href="/" onClick={() => setMobileOpen(false)} data-testid="link-mobile-logo" className="flex items-center gap-2">
           <BrandMark small />
-          <span className="text-[15px] font-extrabold tracking-[-.04em]">온휴</span>
+          <span className="border-l border-[hsl(var(--border))] pl-2 ml-1 text-xs font-semibold text-[hsl(var(--foreground))]">인사관리 시스템</span>
         </Link>
-        <button type="button" onClick={() => setMobileOpen((open) => !open)} data-testid="button-mobile-menu" className="rounded-lg p-2 text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]">
-          {mobileOpen ? <X size={21} /> : <Menu size={21} />}
+        <button type="button" onClick={() => setMobileOpen((open) => !open)} data-testid="button-mobile-menu" className="p-2 text-[hsl(var(--foreground))]">
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </header>
-      <aside className={`fixed inset-y-0 left-0 z-50 w-[248px] -translate-x-full bg-[hsl(var(--sidebar))] text-[hsl(var(--sidebar-foreground))] transition-transform duration-300 md:translate-x-0 ${mobileOpen ? 'translate-x-0' : ''}`}>
-        <div className="flex h-full flex-col px-5 py-6">
-          <Link href="/" onClick={() => setMobileOpen(false)} data-testid="link-logo" className="mb-14 flex items-center gap-3 px-2">
-            <BrandMark />
-            <div>
-              <div className="text-[17px] font-extrabold tracking-[-.05em]">온휴</div>
-              <div className="mt-0.5 font-mono text-[9px] tracking-[.13em] text-[hsl(var(--sidebar-foreground)/.5)]">연차 관리 데스크</div>
-            </div>
-          </Link>
-          <div className="mb-3 px-3 font-mono text-[9px] font-medium tracking-[.18em] text-[hsl(var(--sidebar-foreground)/.42)]">{companyName}</div>
-          <nav className="space-y-1.5">
-            {visibleNavItems.map(({ href, label, icon: Icon }) => {
-              const isActive = activePath === href;
-              return (
-                <Link key={href} href={href} onClick={() => setMobileOpen(false)} data-testid={`link-nav-${label}`} className={`group flex items-center justify-between rounded-xl px-3 py-3 text-[13px] font-semibold transition-colors ${isActive ? 'bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]' : 'text-[hsl(var(--sidebar-foreground)/.72)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]'}`}>
-                  <span className="flex items-center gap-3"><Icon size={17} strokeWidth={isActive ? 2.5 : 1.8} />{label}</span>
-                  {href === '/requests' && <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-[hsl(var(--sidebar-primary-foreground)/.35)]' : 'bg-[hsl(var(--sidebar-foreground)/.35)]'}`} />}
-                </Link>
-              );
-            })}
-          </nav>
-          <div className="mt-auto">
-            <Link href="/apply" onClick={() => setMobileOpen(false)} data-testid="link-apply-sidebar" className="group mb-7 flex items-center justify-between rounded-xl bg-[hsl(var(--sidebar-accent))] px-3.5 py-3.5 transition-colors hover:bg-[hsl(var(--sidebar-primary))] hover:text-[hsl(var(--sidebar-primary-foreground))]">
-              <span className="flex items-center gap-3 text-[13px] font-semibold"><CalendarDays size={17} />휴가 신청하기</span>
-              <ChevronRight size={16} />
-            </Link>
-            <div className="border-t border-[hsl(var(--sidebar-border))] pt-4">
-              <div className="flex items-center gap-3 px-2">
-                <Avatar name={userName} color="gold" />
-                <div className="min-w-0 flex-1"><div className="truncate text-[12px] font-semibold">{userName}</div><div className="mt-0.5 text-[10px] text-[hsl(var(--sidebar-foreground)/.5)]">{user?.primaryEmailAddress?.emailAddress}</div></div>
-                <button type="button" onClick={() => signOut()} className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg text-[hsl(var(--sidebar-foreground)/.5)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]">
-                  <LogOut size={14} />
-                </button>
+
+      {/* Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-[240px] -translate-x-full bg-[hsl(var(--sidebar))] border-r border-[hsl(var(--sidebar-border))] transition-transform duration-200 md:translate-x-0 ${mobileOpen ? 'translate-x-0' : ''}`}>
+        <div className="flex h-full flex-col">
+          <div className="flex h-14 items-center px-6 border-b border-[hsl(var(--sidebar-border))]">
+            <Link href="/" onClick={() => setMobileOpen(false)} data-testid="link-logo" className="flex items-center gap-3">
+              <BrandMark />
+              <div className="border-l border-[hsl(var(--sidebar-border))] pl-3">
+                <div className="text-xs font-bold text-[hsl(var(--sidebar-foreground))]">인사관리 시스템</div>
               </div>
+            </Link>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto px-4 py-6">
+            <div className="mb-4 px-2 text-xs font-semibold text-[hsl(var(--muted-foreground))]">{companyName}</div>
+            <nav className="space-y-1">
+              {visibleNavItems.map(({ href, label, icon: Icon }) => {
+                const isActive = activePath === href;
+                return (
+                  <Link key={href} href={href} onClick={() => setMobileOpen(false)} data-testid={`link-nav-${label}`} className={`group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]' : 'text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))]'}`}>
+                    <span className="flex items-center gap-3"><Icon size={16} strokeWidth={2} />{label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="border-t border-[hsl(var(--sidebar-border))] p-4">
+            <Link href="/apply" onClick={() => setMobileOpen(false)} data-testid="link-apply-sidebar" className="mb-4 flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-2 text-sm font-medium text-white transition-colors hover:bg-[hsl(var(--primary))/0.9]">
+              휴가 신청
+            </Link>
+            
+            <div className="flex items-center gap-3 px-2">
+              <Avatar name={userName} color="gold" />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-medium">{userName}</div>
+                <div className="truncate text-xs text-[hsl(var(--muted-foreground))]">{user?.primaryEmailAddress?.emailAddress}</div>
+              </div>
+              <button type="button" onClick={() => signOut()} className="ml-auto text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]">
+                <LogOut size={16} />
+              </button>
             </div>
           </div>
         </div>
       </aside>
-      {mobileOpen && <button aria-label="메뉴 닫기" data-testid="button-close-mobile-menu" onClick={() => setMobileOpen(false)} className="fixed inset-0 z-40 bg-[hsl(var(--foreground)/.35)] md:hidden" />}
-      <main className="min-h-[100dvh] pt-[68px] md:ml-[248px] md:pt-0">{children}</main>
+
+      {mobileOpen && <button aria-label="메뉴 닫기" data-testid="button-close-mobile-menu" onClick={() => setMobileOpen(false)} className="fixed inset-0 z-40 bg-black/20 md:hidden" />}
+      
+      <main className="flex-1 pt-14 md:ml-[240px] md:pt-0">{children}</main>
     </div>
   );
 }
 
 function BrandMark({ small = false }: { small?: boolean }) {
-  return <div className={`${small ? 'h-8 w-8' : 'h-10 w-10'} relative flex items-center justify-center rounded-[11px] bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]`}><CalendarDays size={small ? 17 : 21} strokeWidth={2.4} /></div>;
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+  return (
+    <img 
+      src={`${basePath}/logo.png`} 
+      alt="무등기업" 
+      className={`${small ? 'h-4' : 'h-5'} object-contain`} 
+    />
+  );
 }
 
-export function PageHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description?: string; action?: ReactNode }) {
+export function PageHeader({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description?: string; action?: ReactNode }) {
   return (
-    <header className="flex flex-col gap-5 border-b border-[hsl(var(--border))] px-5 py-8 sm:px-8 md:flex-row md:items-end md:justify-between md:px-10 md:py-10">
-      <div><div className="eyebrow mb-3">{eyebrow}</div><h1 className="text-[28px] font-extrabold tracking-[-.06em] sm:text-[34px]">{title}</h1>{description && <p className="mt-2 text-[13px] text-[hsl(var(--muted-foreground))]">{description}</p>}</div>
-      {action}
+    <header className="flex flex-col gap-4 border-b border-[hsl(var(--border))] bg-white px-6 py-6 sm:px-8 md:flex-row md:items-center md:justify-between md:py-8">
+      <div>
+        {eyebrow && <div className="eyebrow mb-1">{eyebrow}</div>}
+        <h1 className="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))]">{title}</h1>
+        {description && <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">{description}</p>}
+      </div>
+      {action && <div>{action}</div>}
     </header>
   );
 }

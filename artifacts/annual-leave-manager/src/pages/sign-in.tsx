@@ -1,42 +1,56 @@
 import { SignIn } from '@clerk/react';
-import { CalendarDays } from 'lucide-react';
+import { Link } from 'wouter';
 
 export default function SignInPage() {
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
   
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-[hsl(var(--background))] md:flex-row">
-      {/* Left panel - Branding */}
-      <div className="relative flex flex-col justify-between bg-[hsl(var(--primary))] p-8 text-[hsl(var(--primary-foreground))] md:w-[45%] md:p-12 lg:w-[40%] xl:p-16">
-        <div className="noise" />
-        <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[11px] bg-[hsl(var(--primary-foreground))] text-[hsl(var(--primary))]">
-              <CalendarDays size={21} strokeWidth={2.4} />
-            </div>
-            <span className="text-[18px] font-extrabold tracking-[-.04em]">온휴</span>
-          </div>
-          <div className="mt-16 sm:mt-24">
-            <h1 className="text-[32px] font-extrabold leading-[1.2] tracking-[-.05em] sm:text-[40px]">
-              단단하고 믿음직한<br />
-              우리 회사 연차 데스크
+    <div className="flex min-h-[100dvh] flex-col bg-[hsl(var(--background))]">
+      <header className="flex h-14 items-center justify-between border-b border-[hsl(var(--border))] bg-white px-6">
+        <div className="flex items-center gap-3">
+          <img src={`${basePath}/logo.png`} alt="무등기업" className="h-5 object-contain" />
+          <span className="text-xs font-bold text-[hsl(var(--foreground))] border-l border-[hsl(var(--border))] pl-3">
+            임직원 인사관리 시스템
+          </span>
+        </div>
+      </header>
+
+      <div className="flex flex-1 flex-col lg:flex-row">
+        {/* Left panel - Geometric Split */}
+        <div className="hidden w-1/2 flex-col border-r border-[hsl(var(--border))] bg-white p-12 lg:flex relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+          
+          <div className="relative z-10 my-auto">
+            <h1 className="text-3xl font-bold tracking-tight text-[hsl(var(--foreground))] leading-snug">
+              인사관리 시스템 로그인
             </h1>
-            <p className="mt-5 max-w-[340px] text-[14px] leading-relaxed text-[hsl(var(--primary-foreground)/.7)]">
-              복잡한 연차 계산부터 승인 내역까지. 온휴가 가장 명확하고 정확하게 정리해 드립니다.
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
+              사번 또는 등록된 이메일 계정을 사용하여 시스템에 접근하십시오. 접근 권한이 없는 경우 관리자에게 문의 바랍니다.
             </p>
           </div>
         </div>
-        <div className="relative z-10 hidden mt-auto md:block">
-          <div className="font-mono text-[10px] tracking-[.15em] opacity-60">DEPENDABLE WORKPLACE</div>
-        </div>
-      </div>
 
-      {/* Right panel - Form */}
-      <div className="flex flex-1 items-center justify-center p-6 sm:p-8">
-        <div className="w-full max-w-[360px] animate-rise">
-          <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+        {/* Right panel - Form */}
+        <div className="flex flex-1 items-center justify-center p-6 sm:p-12 bg-[hsl(var(--background))]">
+          <div className="w-full max-w-[400px] animate-rise">
+            <SignIn 
+              routing="path" 
+              path={`${basePath}/sign-in`} 
+              signUpUrl={`${basePath}/sign-up`} 
+            />
+            <div className="mt-5 flex items-center justify-between border-t border-[hsl(var(--border))] pt-4 text-xs text-[hsl(var(--muted-foreground))]">
+              <span>계정 등록이 필요하신가요?</span>
+              <Link href="/sign-up" className="font-semibold text-[hsl(var(--primary))] hover:underline">
+                계정 등록
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
+      
+      <footer className="flex h-12 items-center justify-center border-t border-[hsl(var(--border))] bg-white text-[11px] text-[hsl(var(--muted-foreground))]">
+        &copy; {new Date().getFullYear()} 무등기업 HR Management System. All rights reserved.
+      </footer>
     </div>
   );
 }

@@ -34,7 +34,11 @@ _Describe the high-level user-facing capabilities of this app once they exist._
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Treat the product as an internal corporate HR system, not a lifestyle leave app.
+- Use the real 무등기업 logo from `artifacts/annual-leave-manager/public/logo.png` in persistent branding.
+- Keep the visual system white/light gray and charcoal with `#E83920` used only as a restrained accent.
+- Avoid rounded card stacks, soft shadows, gradients, emotional slogans, decorative English copy, illustrations, and cute elements.
+- Use disciplined grid alignment, clear rules, minimal elevation, 4–6px corners, and Pretendard or Noto Sans KR across employee and admin screens.
 
 ## Gotchas
 

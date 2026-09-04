@@ -68,7 +68,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   if (!isLoaded) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-[hsl(var(--background))]">
-        <div className="skeleton h-10 w-10 rounded-full" />
+        <div className="skeleton h-8 w-8" />
       </div>
     );
   }
@@ -83,39 +83,70 @@ function SignedInHome() {
     query: { queryKey: getGetMyEmployeeQueryKey(), retry: false },
   });
   if (profile.isLoading) {
-    return <div className="flex min-h-[100dvh] items-center justify-center"><div className="skeleton h-10 w-10 rounded-full" /></div>;
+    return <div className="flex min-h-[100dvh] items-center justify-center"><div className="skeleton h-8 w-8" /></div>;
   }
   return <AppShell>{profile.data?.role === '관리자' ? <DashboardPage /> : <MyLeavePage />}</AppShell>;
 }
 
 function PublicHome() {
   return (
-    <main className="grid min-h-[100dvh] bg-[hsl(var(--background))] lg:grid-cols-[minmax(420px,42%)_1fr]">
-      <section className="flex flex-col justify-between bg-[hsl(var(--primary))] p-8 text-[hsl(var(--primary-foreground))] sm:p-12 lg:p-16">
-        <div className="text-lg font-extrabold tracking-[-.04em]">온휴</div>
-        <div className="py-20">
-          <div className="eyebrow text-[hsl(var(--secondary))]">ANNUAL LEAVE DESK</div>
-          <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-[-.055em] sm:text-5xl">단단하고 믿음직한<br />우리 회사 연차 데스크</h1>
-          <p className="mt-6 max-w-md text-sm leading-7 opacity-70">입사일 기준 연차 생성부터 신청, 승인, 월별 내역, 결근 기록까지 한곳에서 정확하게 관리합니다.</p>
+    <main className="flex min-h-[100dvh] flex-col bg-[hsl(var(--background))]">
+      <header className="flex h-14 items-center justify-between border-b border-[hsl(var(--border))] bg-white px-6">
+        <div className="flex items-center gap-3">
+          <img src={`${basePath}/logo.png`} alt="무등기업" className="h-5 object-contain" />
+          <span className="text-xs font-bold text-[hsl(var(--foreground))] border-l border-[hsl(var(--border))] pl-3">
+            임직원 인사관리 시스템
+          </span>
         </div>
-        <div className="font-mono text-[10px] tracking-[.15em] opacity-60">DEPENDABLE WORKPLACE</div>
-      </section>
-      <section className="flex items-center justify-center p-6 sm:p-12">
-        <div className="surface w-full max-w-lg p-7 sm:p-10">
-          <div className="eyebrow">온휴 시작하기</div>
-          <h2 className="mt-3 text-2xl font-extrabold tracking-[-.04em]">휴가 현황을 더 명확하게</h2>
-          <p className="mt-3 text-sm leading-6 text-[hsl(var(--muted-foreground))]">직원은 남은 연차와 신청 내역을 확인하고, 관리자는 승인과 결근 기록을 처리할 수 있습니다.</p>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <Link href="/sign-in" className="inline-flex h-12 items-center justify-center rounded-xl bg-[hsl(var(--primary))] text-sm font-bold text-[hsl(var(--primary-foreground))] hover:brightness-110">로그인</Link>
-            <Link href="/sign-up" className="inline-flex h-12 items-center justify-center rounded-xl border border-[hsl(var(--border))] text-sm font-bold hover:bg-[hsl(var(--muted))]">회원가입</Link>
+      </header>
+      
+      <div className="flex flex-1 flex-col lg:flex-row">
+        <section className="hidden w-1/2 flex-col justify-between border-r border-[hsl(var(--border))] bg-white p-12 lg:flex relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+          
+          <div className="relative z-10 my-auto">
+            <h1 className="text-3xl font-bold tracking-tight text-[hsl(var(--foreground))] leading-snug">
+              무등기업 임직원<br />인사관리 시스템
+            </h1>
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
+              입사일 기준 연차 생성부터 신청, 승인, 월별 내역, 결근 기록까지 단일 시스템에서 정확하게 관리합니다.
+            </p>
+            
+            <div className="mt-12 grid gap-6 border-t border-[hsl(var(--border))] pt-8 text-sm grid-cols-2 max-w-md">
+              <div className="flex flex-col gap-1.5">
+                <span className="font-semibold text-[hsl(var(--foreground))]">자동 부여</span>
+                <span className="text-[hsl(var(--muted-foreground))]">입사일 기준 자동 연차 생성 및 검증</span>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="font-semibold text-[hsl(var(--foreground))]">이력 관리</span>
+                <span className="text-[hsl(var(--muted-foreground))]">연도 및 월별 휴가 사용 이력 조회</span>
+              </div>
+            </div>
           </div>
-          <div className="mt-8 grid gap-3 border-t border-[hsl(var(--border))] pt-6 text-xs text-[hsl(var(--muted-foreground))] sm:grid-cols-3">
-            <span>입사일 기준 자동 부여</span>
-            <span>잔여 연차 자동 검증</span>
-            <span>연도·월별 이력 조회</span>
+        </section>
+        
+        <section className="flex flex-1 items-center justify-center p-6 sm:p-12 bg-[hsl(var(--background))]">
+          <div className="w-full max-w-[360px] animate-rise bg-white border border-[hsl(var(--border))] rounded p-8">
+            <div className="mb-8 border-b border-[hsl(var(--border))] pb-5">
+              <h2 className="text-xl font-bold tracking-tight">시스템 접근</h2>
+              <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">사번 또는 이메일과 비밀번호로 로그인하세요.</p>
+            </div>
+            
+            <div className="grid gap-3">
+              <Link href="/sign-in" className="flex h-10 w-full items-center justify-center bg-[hsl(var(--primary))] rounded text-sm font-medium text-white transition-colors hover:bg-[hsl(var(--primary))/0.9] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] focus:ring-offset-2">
+                로그인
+              </Link>
+              <Link href="/sign-up" className="flex h-10 w-full items-center justify-center border border-[hsl(var(--border))] rounded bg-white text-sm font-medium text-[hsl(var(--foreground))] transition-colors hover:bg-[hsl(var(--secondary))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] focus:ring-offset-2">
+                계정 등록
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
+
+      <footer className="flex h-12 items-center justify-center border-t border-[hsl(var(--border))] bg-white text-[11px] text-[hsl(var(--muted-foreground))]">
+        &copy; {new Date().getFullYear()} 무등기업 HR Management System. All rights reserved.
+      </footer>
     </main>
   );
 }
@@ -178,6 +209,80 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
+const clerkAppearance = {
+  elements: {
+    rootBox: 'w-full',
+    card: 'clerk-enterprise-card rounded shadow-none border border-[hsl(var(--border))] bg-white',
+    cardBox: 'clerk-enterprise-card-box rounded shadow-none w-full',
+    headerTitle: 'text-xl font-bold text-[hsl(var(--foreground))] tracking-tight',
+    headerSubtitle: 'text-xs text-[hsl(var(--muted-foreground))]',
+    formButtonPrimary: 'bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))/0.9] rounded shadow-none text-white h-10 text-sm font-medium transition-colors',
+    formFieldInput: 'rounded border border-[hsl(var(--input))] h-10 text-sm focus:border-[hsl(var(--ring))] focus:ring-1 focus:ring-[hsl(var(--ring))]',
+    formFieldLabel: 'text-xs font-semibold text-[hsl(var(--foreground))]',
+    footerActionLink: 'text-[hsl(var(--primary))] font-semibold hover:text-[hsl(var(--primary))/0.9]',
+    socialButtonsBlockButton: 'hidden',
+    dividerRow: 'hidden',
+    footer: 'hidden',
+    identityPreviewEditButtonIcon: 'text-[hsl(var(--primary))]',
+    formFieldSuccessText: 'text-[hsl(var(--primary))]',
+    formFieldErrorText: 'text-[hsl(var(--destructive))]',
+    logoBox: 'hidden',
+  },
+  variables: {
+    colorPrimary: 'hsl(9, 82%, 55%)',
+    colorBackground: 'white',
+    colorText: 'hsl(220, 15%, 10%)',
+    colorDanger: 'hsl(3, 80%, 50%)',
+    colorInputBackground: 'white',
+    colorInputText: 'hsl(220, 15%, 10%)',
+    fontFamily: '"Pretendard", sans-serif',
+    borderRadius: '0.25rem'
+  }
+};
+
+const clerkLocalization = {
+  locale: 'ko-KR',
+  formFieldLabel__emailAddress: '이메일',
+  formFieldLabel__emailAddress_username: '사번 또는 이메일',
+  formFieldLabel__password: '비밀번호',
+  formFieldLabel__confirmPassword: '비밀번호 확인',
+  formFieldLabel__firstName: '이름',
+  formFieldInputPlaceholder__emailAddress: '회사 이메일을 입력하세요',
+  formFieldInputPlaceholder__emailAddress_username: '사번 또는 이메일을 입력하세요',
+  formFieldInputPlaceholder__password: '비밀번호를 입력하세요',
+  formFieldInputPlaceholder__signUpPassword: '비밀번호를 설정하세요',
+  formButtonPrimary: '계속',
+  formButtonPrimary__verify: '인증하기',
+  formFieldAction__forgotPassword: '비밀번호 찾기',
+  backButton: '이전',
+  dividerText: '또는',
+  signIn: {
+    start: {
+      title: '시스템 로그인',
+      titleCombined: '시스템 로그인',
+      subtitle: '등록된 이메일 계정으로 로그인하세요.',
+      subtitleCombined: '등록된 이메일 계정으로 로그인하세요.',
+      actionText: '계정이 없으신가요?',
+      actionLink: '계정 등록',
+    },
+    password: {
+      title: '비밀번호 입력',
+      subtitle: '계정 비밀번호를 입력하세요.',
+      actionLink: '다른 계정 사용',
+    },
+  },
+  signUp: {
+    start: {
+      title: '계정 등록',
+      titleCombined: '계정 등록',
+      subtitle: '무등기업 임직원 계정을 등록합니다.',
+      subtitleCombined: '무등기업 임직원 계정을 등록합니다.',
+      actionText: '이미 계정이 있으신가요?',
+      actionLink: '로그인',
+    },
+  },
+};
+
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
 
@@ -189,6 +294,8 @@ function ClerkProviderWithRoutes() {
       signUpUrl={`${basePath}/sign-up`}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
+      appearance={clerkAppearance}
+      localization={clerkLocalization}
     >
       <QueryClientProvider client={queryClient}>
         <ProfileBootstrap />
@@ -204,9 +311,9 @@ function ClerkProviderWithRoutes() {
 function App() {
   if (!clerkPubKey) {
     return (
-      <div className="flex min-h-[100dvh] flex-col items-center justify-center p-6 text-center bg-[#f7f6f2] text-[#1b2b27]">
+      <div className="flex min-h-[100dvh] flex-col items-center justify-center p-6 text-center bg-white text-[hsl(var(--foreground))]">
         <h1 className="mb-2 text-xl font-bold">인증 설정 필요</h1>
-        <p className="text-sm opacity-70">Clerk Publishable Key가 환경 변수에 없습니다.</p>
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">Clerk Publishable Key가 환경 변수에 없습니다.</p>
       </div>
     );
   }
