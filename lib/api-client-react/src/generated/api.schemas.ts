@@ -9,6 +9,14 @@ export interface HealthStatus {
   status: string;
 }
 
+export type EmployeeStatus = typeof EmployeeStatus[keyof typeof EmployeeStatus];
+
+
+export const EmployeeStatus = {
+  active: 'active',
+  resigned: 'resigned',
+} as const;
+
 export interface Employee {
   id: number;
   name: string;
@@ -23,6 +31,13 @@ export interface Employee {
   companyName?: string | null;
   /** @nullable */
   email?: string | null;
+  /** @nullable */
+  employeeNumber?: string | null;
+  position: string;
+  status: EmployeeStatus;
+  /** @nullable */
+  resignedAt?: string | null;
+  ordinaryHourlyWage: number;
 }
 
 export interface EmployeeRegistrationInput {
@@ -32,6 +47,58 @@ export interface EmployeeRegistrationInput {
   name: string;
   /** @minLength 3 */
   email: string;
+}
+
+export type AdminEmployeeInputRole = typeof AdminEmployeeInputRole[keyof typeof AdminEmployeeInputRole];
+
+
+export const AdminEmployeeInputRole = {
+  직원: '직원',
+  관리자: '관리자',
+} as const;
+
+export interface AdminEmployeeInput {
+  /** @minLength 1 */
+  employeeNumber: string;
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 3 */
+  email: string;
+  /** @minLength 1 */
+  department: string;
+  position: string;
+  role: AdminEmployeeInputRole;
+  joinedAt: string;
+  /** @minimum 0 */
+  ordinaryHourlyWage: number;
+}
+
+export type AdminEmployeeUpdateInputRole = typeof AdminEmployeeUpdateInputRole[keyof typeof AdminEmployeeUpdateInputRole];
+
+
+export const AdminEmployeeUpdateInputRole = {
+  직원: '직원',
+  관리자: '관리자',
+} as const;
+
+export interface AdminEmployeeUpdateInput {
+  /** @minLength 1 */
+  employeeNumber?: string;
+  /** @minLength 1 */
+  name?: string;
+  /** @minLength 3 */
+  email?: string;
+  /** @minLength 1 */
+  department?: string;
+  position?: string;
+  role?: AdminEmployeeUpdateInputRole;
+  joinedAt?: string;
+  /** @minimum 0 */
+  ordinaryHourlyWage?: number;
+}
+
+export interface ResignEmployeeInput {
+  resignedAt: string;
 }
 
 export interface LeaveBalance {
@@ -186,6 +253,10 @@ export type MonthParameter = number;
 export type EmployeeIdQueryParameter = number;
 
 export type GetEmployeesParams = {
+search?: SearchParameter;
+};
+
+export type GetAdminEmployeesParams = {
 search?: SearchParameter;
 };
 

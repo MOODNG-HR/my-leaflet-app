@@ -62,7 +62,12 @@ export const GetEmployeesResponseItem = zod.object({
   "pendingDays": zod.number(),
   "remainingDays": zod.number(),
   "companyName": zod.string().nullish(),
-  "email": zod.string().nullish()
+  "email": zod.string().nullish(),
+  "employeeNumber": zod.string().nullish(),
+  "position": zod.string(),
+  "status": zod.enum(['active', 'resigned']),
+  "resignedAt": zod.coerce.date().nullish(),
+  "ordinaryHourlyWage": zod.number()
 })
 export const GetEmployeesResponse = zod.array(GetEmployeesResponseItem)
 
@@ -81,7 +86,12 @@ export const GetMyEmployeeResponse = zod.object({
   "pendingDays": zod.number(),
   "remainingDays": zod.number(),
   "companyName": zod.string().nullish(),
-  "email": zod.string().nullish()
+  "email": zod.string().nullish(),
+  "employeeNumber": zod.string().nullish(),
+  "position": zod.string(),
+  "status": zod.enum(['active', 'resigned']),
+  "resignedAt": zod.coerce.date().nullish(),
+  "ordinaryHourlyWage": zod.number()
 })
 
 
@@ -111,7 +121,12 @@ export const RegisterMyEmployeeResponse = zod.object({
   "pendingDays": zod.number(),
   "remainingDays": zod.number(),
   "companyName": zod.string().nullish(),
-  "email": zod.string().nullish()
+  "email": zod.string().nullish(),
+  "employeeNumber": zod.string().nullish(),
+  "position": zod.string(),
+  "status": zod.enum(['active', 'resigned']),
+  "resignedAt": zod.coerce.date().nullish(),
+  "ordinaryHourlyWage": zod.number()
 })
 
 
@@ -128,6 +143,182 @@ export const GetEmployeeBalanceResponse = zod.object({
   "usedDays": zod.number(),
   "pendingDays": zod.number(),
   "remainingDays": zod.number()
+})
+
+
+/**
+ * @summary List employees managed by the signed-in administrator
+ */
+export const GetAdminEmployeesQueryParams = zod.object({
+  "search": zod.coerce.string().optional()
+})
+
+export const GetAdminEmployeesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "department": zod.string(),
+  "role": zod.string(),
+  "joinedAt": zod.coerce.date(),
+  "annualAllowance": zod.number(),
+  "usedDays": zod.number(),
+  "pendingDays": zod.number(),
+  "remainingDays": zod.number(),
+  "companyName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "employeeNumber": zod.string().nullish(),
+  "position": zod.string(),
+  "status": zod.enum(['active', 'resigned']),
+  "resignedAt": zod.coerce.date().nullish(),
+  "ordinaryHourlyWage": zod.number()
+})
+export const GetAdminEmployeesResponse = zod.array(GetAdminEmployeesResponseItem)
+
+
+/**
+ * @summary Pre-register an employee account
+ */
+
+
+export const createAdminEmployeeBodyEmailMin = 3;
+
+
+export const createAdminEmployeeBodyOrdinaryHourlyWageMin = 0;
+
+
+
+export const CreateAdminEmployeeBody = zod.object({
+  "employeeNumber": zod.string().min(1),
+  "name": zod.string().min(1),
+  "email": zod.string().min(createAdminEmployeeBodyEmailMin),
+  "department": zod.string().min(1),
+  "position": zod.string(),
+  "role": zod.enum(['직원', '관리자']),
+  "joinedAt": zod.coerce.date(),
+  "ordinaryHourlyWage": zod.number().min(createAdminEmployeeBodyOrdinaryHourlyWageMin)
+})
+
+export const CreateAdminEmployeeResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "department": zod.string(),
+  "role": zod.string(),
+  "joinedAt": zod.coerce.date(),
+  "annualAllowance": zod.number(),
+  "usedDays": zod.number(),
+  "pendingDays": zod.number(),
+  "remainingDays": zod.number(),
+  "companyName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "employeeNumber": zod.string().nullish(),
+  "position": zod.string(),
+  "status": zod.enum(['active', 'resigned']),
+  "resignedAt": zod.coerce.date().nullish(),
+  "ordinaryHourlyWage": zod.number()
+})
+
+
+/**
+ * @summary Get a managed employee
+ */
+export const GetAdminEmployeeParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetAdminEmployeeResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "department": zod.string(),
+  "role": zod.string(),
+  "joinedAt": zod.coerce.date(),
+  "annualAllowance": zod.number(),
+  "usedDays": zod.number(),
+  "pendingDays": zod.number(),
+  "remainingDays": zod.number(),
+  "companyName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "employeeNumber": zod.string().nullish(),
+  "position": zod.string(),
+  "status": zod.enum(['active', 'resigned']),
+  "resignedAt": zod.coerce.date().nullish(),
+  "ordinaryHourlyWage": zod.number()
+})
+
+
+/**
+ * @summary Update a managed employee
+ */
+export const UpdateAdminEmployeeParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+export const updateAdminEmployeeBodyEmailMin = 3;
+
+
+export const updateAdminEmployeeBodyOrdinaryHourlyWageMin = 0;
+
+
+
+export const UpdateAdminEmployeeBody = zod.object({
+  "employeeNumber": zod.string().min(1).optional(),
+  "name": zod.string().min(1).optional(),
+  "email": zod.string().min(updateAdminEmployeeBodyEmailMin).optional(),
+  "department": zod.string().min(1).optional(),
+  "position": zod.string().optional(),
+  "role": zod.enum(['직원', '관리자']).optional(),
+  "joinedAt": zod.coerce.date().optional(),
+  "ordinaryHourlyWage": zod.number().min(updateAdminEmployeeBodyOrdinaryHourlyWageMin).optional()
+})
+
+export const UpdateAdminEmployeeResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "department": zod.string(),
+  "role": zod.string(),
+  "joinedAt": zod.coerce.date(),
+  "annualAllowance": zod.number(),
+  "usedDays": zod.number(),
+  "pendingDays": zod.number(),
+  "remainingDays": zod.number(),
+  "companyName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "employeeNumber": zod.string().nullish(),
+  "position": zod.string(),
+  "status": zod.enum(['active', 'resigned']),
+  "resignedAt": zod.coerce.date().nullish(),
+  "ordinaryHourlyWage": zod.number()
+})
+
+
+/**
+ * @summary Mark a managed employee as resigned
+ */
+export const ResignAdminEmployeeParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ResignAdminEmployeeBody = zod.object({
+  "resignedAt": zod.coerce.date()
+})
+
+export const ResignAdminEmployeeResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "department": zod.string(),
+  "role": zod.string(),
+  "joinedAt": zod.coerce.date(),
+  "annualAllowance": zod.number(),
+  "usedDays": zod.number(),
+  "pendingDays": zod.number(),
+  "remainingDays": zod.number(),
+  "companyName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "employeeNumber": zod.string().nullish(),
+  "position": zod.string(),
+  "status": zod.enum(['active', 'resigned']),
+  "resignedAt": zod.coerce.date().nullish(),
+  "ordinaryHourlyWage": zod.number()
 })
 
 

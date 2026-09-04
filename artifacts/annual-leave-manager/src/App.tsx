@@ -23,6 +23,9 @@ import MyLeavePage from '@/pages/my-leave';
 import AbsencePage from '@/pages/absence';
 import SignInPage from '@/pages/sign-in';
 import SignUpPage from '@/pages/sign-up';
+import AdminEmployeesPage from '@/pages/admin-employees';
+import AdminEmployeeNewPage from '@/pages/admin-employee-new';
+import AdminEmployeeDetailPage from '@/pages/admin-employee-detail';
 import { AppShell } from '@/components/layout';
 
 const queryClient = new QueryClient();
@@ -43,29 +46,25 @@ function stripBase(path: string): string {
 }
 
 function HomeRedirect() {
-  return (
-    <>
-      <Show when="signed-in">
-        <SignedInHome />
-      </Show>
-      <Show when="signed-out">
-        <PublicHome />
-      </Show>
-    </>
-  );
-}
-
-function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth();
   const [, setLocation] = useLocation();
+  const profile = useGetMyEmployee({
+    query: { queryKey: getGetMyEmployeeQueryKey(), retry: false, enabled: isLoaded && isSignedIn },
+  });
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
       setLocation('/sign-in');
+    } else if (isLoaded && isSignedIn && profile.isSuccess) {
+      if (profile.data.role === '관리자' && profile.data.status === 'active') {
+        setLocation('/admin');
+      } else {
+        setLocation('/app');
+      }
     }
-  }, [isLoaded, isSignedIn, setLocation]);
+  }, [isLoaded, isSignedIn, profile.isSuccess, profile.data, setLocation]);
 
-  if (!isLoaded) {
+  if (!isLoaded || (isSignedIn && profile.isLoading)) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-[hsl(var(--background))]">
         <div className="skeleton h-8 w-8" />
@@ -73,19 +72,71 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!isSignedIn) return null;
+  if (!isSignedIn) {
+    return <PublicHome />;
+  }
+
+  return null;
+}
+
+function AdminRoute({ children }: { children: ReactNode }) {
+  const { isLoaded, isSignedIn } = useAuth();
+  const [, setLocation] = useLocation();
+  const profile = useGetMyEmployee({
+    query: { queryKey: getGetMyEmployeeQueryKey(), retry: false },
+  });
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      setLocation('/sign-in');
+    } else if (isLoaded && isSignedIn && profile.isSuccess) {
+      if (profile.data.role !== '관리자' || profile.data.status !== 'active') {
+        setLocation('/app');
+      }
+    }
+  }, [isLoaded, isSignedIn, profile.isSuccess, profile.data, setLocation]);
+
+  if (!isLoaded || profile.isLoading) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-[hsl(var(--background))]">
+        <div className="skeleton h-8 w-8" />
+      </div>
+    );
+  }
+
+  if (!isSignedIn || !profile.data || profile.data.role !== '관리자' || profile.data.status !== 'active') return null;
 
   return <>{children}</>;
 }
 
-function SignedInHome() {
+function EmployeeRoute({ children }: { children: ReactNode }) {
+  const { isLoaded, isSignedIn } = useAuth();
+  const [, setLocation] = useLocation();
   const profile = useGetMyEmployee({
     query: { queryKey: getGetMyEmployeeQueryKey(), retry: false },
   });
-  if (profile.isLoading) {
-    return <div className="flex min-h-[100dvh] items-center justify-center"><div className="skeleton h-8 w-8" /></div>;
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      setLocation('/sign-in');
+    } else if (isLoaded && isSignedIn && profile.isSuccess) {
+      if (profile.data.status !== 'active') {
+        // Just let them view empty state or something, or we could redirect them to a specific inactive page.
+      }
+    }
+  }, [isLoaded, isSignedIn, profile.isSuccess, profile.data, setLocation]);
+
+  if (!isLoaded || profile.isLoading) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-[hsl(var(--background))]">
+        <div className="skeleton h-8 w-8" />
+      </div>
+    );
   }
-  return <AppShell>{profile.data?.role === '관리자' ? <DashboardPage /> : <MyLeavePage />}</AppShell>;
+
+  if (!isSignedIn || !profile.data) return null;
+
+  return <>{children}</>;
 }
 
 function PublicHome() {
@@ -190,13 +241,23 @@ function Router() {
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
         
-        {/* Protected Routes */}
+        {/* Redirects */}
         <Route path="/" component={HomeRedirect} />
-        <Route path="/requests" component={() => <ProtectedRoute><AppShell><RequestsPage /></AppShell></ProtectedRoute>} />
-        <Route path="/employees" component={() => <ProtectedRoute><AppShell><EmployeesPage /></AppShell></ProtectedRoute>} />
-        <Route path="/apply" component={() => <ProtectedRoute><AppShell><ApplyPage /></AppShell></ProtectedRoute>} />
-        <Route path="/my-leave" component={() => <ProtectedRoute><AppShell><MyLeavePage /></AppShell></ProtectedRoute>} />
-        <Route path="/absence" component={() => <ProtectedRoute><AppShell><AbsencePage /></AppShell></ProtectedRoute>} />
+        <Route path="/my-leave" component={() => <Redirect to="/app" />} />
+        <Route path="/requests" component={() => <Redirect to="/admin/requests" />} />
+        <Route path="/employees" component={() => <Redirect to="/admin/employees" />} />
+        
+        {/* Administrator Routes */}
+        <Route path="/admin" component={() => <AdminRoute><AppShell><DashboardPage /></AppShell></AdminRoute>} />
+        <Route path="/admin/requests" component={() => <AdminRoute><AppShell><RequestsPage /></AppShell></AdminRoute>} />
+        <Route path="/admin/employees" component={() => <AdminRoute><AppShell><AdminEmployeesPage /></AppShell></AdminRoute>} />
+        <Route path="/admin/employees/new" component={() => <AdminRoute><AppShell><AdminEmployeeNewPage /></AppShell></AdminRoute>} />
+        <Route path="/admin/employees/:id" component={() => <AdminRoute><AppShell><AdminEmployeeDetailPage /></AppShell></AdminRoute>} />
+        <Route path="/admin/absence" component={() => <AdminRoute><AppShell><AbsencePage /></AppShell></AdminRoute>} />
+
+        {/* Employee Routes */}
+        <Route path="/app" component={() => <EmployeeRoute><AppShell><MyLeavePage /></AppShell></EmployeeRoute>} />
+        <Route path="/apply" component={() => <EmployeeRoute><AppShell><ApplyPage /></AppShell></EmployeeRoute>} />
         
         <Route component={NotFound} />
       </Switch>

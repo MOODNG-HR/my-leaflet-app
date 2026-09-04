@@ -70,7 +70,7 @@ export default function AbsencePage() {
               <ConfirmRow label="부재 일수" value={formatDays(days)} />
             </div>
             <div className="mt-8 flex flex-col justify-center gap-2 sm:flex-row">
-              <Link href="/" data-testid="link-view-dashboard" className="inline-flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] px-4 py-2.5 text-xs font-bold text-[hsl(var(--primary-foreground))] hover:brightness-110">
+              <Link href="/admin" data-testid="link-view-dashboard" className="inline-flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] px-4 py-2.5 text-xs font-bold text-[hsl(var(--primary-foreground))] hover:brightness-110">
                 현황에서 확인
               </Link>
               <button type="button" onClick={() => { setSubmitted(false); setReason(''); setStartDate(''); setEndDate(''); }} data-testid="button-new-absence" className="rounded-lg border border-[hsl(var(--border))] px-4 py-2.5 text-xs font-bold hover:bg-[hsl(var(--muted))]">
@@ -90,7 +90,7 @@ export default function AbsencePage() {
         title="부재 등록" 
         description="관리자 권한으로 구성원의 부재(공가, 병가, 결근 등)를 직접 기록합니다." 
         action={
-          <Link href="/" data-testid="link-back-dashboard" className="inline-flex items-center gap-2 text-[12px] font-bold text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">
+          <Link href="/admin" data-testid="link-back-dashboard" className="inline-flex items-center gap-2 text-[12px] font-bold text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">
             <ArrowLeft size={15} />현황으로 돌아가기
           </Link>
         } 

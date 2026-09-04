@@ -1,4 +1,4 @@
-import { desc, eq, or, ilike } from "drizzle-orm";
+import { desc, eq, or, ilike, sql } from "drizzle-orm";
 import { Router, type IRouter } from "express";
 import { clerkClient, getAuth } from "@clerk/express";
 import {
@@ -157,6 +157,11 @@ function summarizeEmployee(
     remainingDays: Math.max(0, annualAllowance - usedDays - pendingDays),
     companyName: employee.companyName,
     email: employee.email,
+    employeeNumber: employee.employeeNumber,
+    position: employee.position,
+    status: employee.status,
+    resignedAt: employee.resignedAt,
+    ordinaryHourlyWage: employee.ordinaryHourlyWage,
   };
 }
 
@@ -194,7 +199,10 @@ router.use(async (req, res, next): Promise<void> => {
     .select()
     .from(employeesTable)
     .where(eq(employeesTable.clerkUserId, userId));
-  if (!actor && !(req.method === "POST" && req.path === "/me/employee")) {
+  if (
+    actor?.status === "resigned" ||
+    (!actor && !(req.method === "POST" && req.path === "/me/employee"))
+  ) {
     res.status(403).json({ error: "직원 프로필 등록이 필요합니다." });
     return;
   }
@@ -348,11 +356,16 @@ router.post("/me/employee", async (req, res): Promise<void> => {
     res.status(400).json({ error: "인증된 이메일을 확인할 수 없습니다." });
     return;
   }
-  const [preProvisioned] = await db
+  const matches = await db
     .select()
     .from(employeesTable)
-    .where(eq(employeesTable.email, verifiedEmail));
-  if (preProvisioned) {
+    .where(sql`lower(${employeesTable.email}) = ${verifiedEmail.toLowerCase()}`);
+  if (matches.length > 1) {
+    res.status(409).json({ error: "중복된 직원 이메일입니다. 인사 담당자에게 문의해 주세요." });
+    return;
+  }
+  const [preProvisioned] = matches;
+  if (preProvisioned?.status === "active") {
     if (preProvisioned.clerkUserId && preProvisioned.clerkUserId !== userId) {
       res.status(409).json({ error: "이미 다른 계정에 연결된 직원입니다." });
       return;
@@ -371,23 +384,9 @@ router.post("/me/employee", async (req, res): Promise<void> => {
     );
     return;
   }
-  const today = new Date().toISOString().slice(0, 10);
-  const [created] = await db
-    .insert(employeesTable)
-    .values({
-      clerkUserId: userId,
-      companyName: parsedBody.data.companyName,
-      email: verifiedEmail,
-      name: parsedBody.data.name,
-      department: "미지정",
-      role: "직원",
-      joinedAt: today,
-      annualAllowance: 1,
-    })
-    .returning();
-  res.status(201).json(
-    RegisterMyEmployeeResponse.parse(summarizeEmployee(created, [])),
-  );
+  res.status(403).json({
+    error: "관리자가 사전 등록한 이메일과 일치하지 않습니다. 인사 담당자에게 문의해 주세요.",
+  });
 });
 
 router.get("/employees", async (req, res): Promise<void> => {

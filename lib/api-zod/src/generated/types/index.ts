@@ -7,10 +7,16 @@
  */
 
 export * from './absenceInput';
+export * from './adminEmployeeInput';
+export * from './adminEmployeeInputRole';
+export * from './adminEmployeeUpdateInput';
+export * from './adminEmployeeUpdateInputRole';
 export * from './dashboardSummary';
 export * from './employee';
 export * from './employeeIdQueryParameter';
 export * from './employeeRegistrationInput';
+export * from './employeeStatus';
+export * from './getAdminEmployeesParams';
 export * from './getEmployeesParams';
 export * from './getLeaveRequestsParams';
 export * from './healthStatus';
@@ -24,6 +30,7 @@ export * from './leaveRequestTimeSlot';
 export * from './leaveType';
 export * from './monthlyLeaveUsage';
 export * from './monthParameter';
+export * from './resignEmployeeInput';
 export * from './searchParameter';
 export * from './statusParameter';
 export * from './timeSlot';

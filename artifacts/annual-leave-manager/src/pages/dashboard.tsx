@@ -24,14 +24,14 @@ export default function DashboardPage() {
         {summary && <div className="space-y-7">
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard label="전체 구성원" value={`${summary.employeeCount}명`} sub="현재 재직자 기준" icon={<UsersRound size={18} />} tone="teal" delay="delay-1" />
-            <MetricCard label="승인 대기" value={`${summary.pendingRequestCount}건`} sub={`${formatDays(summary.pendingDays)} 사용 예정`} icon={<Clock3 size={18} />} tone="gold" delay="delay-2" action={() => setLocation('/requests?status=pending')} />
+            <MetricCard label="승인 대기" value={`${summary.pendingRequestCount}건`} sub={`${formatDays(summary.pendingDays)} 사용 예정`} icon={<Clock3 size={18} />} tone="gold" delay="delay-2" action={() => setLocation('/admin/requests?status=pending')} />
             <MetricCard label="승인 완료" value={`${summary.approvedRequestCount}건`} sub="올해 누적 신청 기준" icon={<CircleCheck size={18} />} tone="sage" delay="delay-3" />
             <MetricCard label={`${summary.year}년 사용 현황`} value={`${usageRatio}%`} sub={`${formatDays(summary.usedDays)} 사용 · ${formatDays(summary.remainingDays)} 남음`} icon={<CalendarDays size={18} />} tone="peach" delay="delay-4" />
           </section>
 
           <section className="grid gap-5 xl:grid-cols-[1.35fr_.65fr]">
             <div className="surface animate-rise p-5 sm:p-6">
-              <SectionHeading label="올해 연차 사용 흐름" link="구성원별 보기" onLink={() => setLocation('/employees')} />
+              <SectionHeading label="올해 연차 사용 흐름" link="구성원별 보기" onLink={() => setLocation('/admin/employees')} />
               <div className="mb-5 flex items-end justify-between"><div><div className="font-mono text-[29px] font-medium tracking-[-.06em]">{formatDays(summary.usedDays)}</div><div className="mt-1 text-[11px] text-[hsl(var(--muted-foreground))]">전체 {formatDays(summary.annualAllowance)} 중</div></div><div className="text-right"><div className="font-mono text-[12px] text-[hsl(var(--primary))]">{usageTotal.toFixed(1)}일</div><div className="mt-1 text-[11px] text-[hsl(var(--muted-foreground))]">월별 누계</div></div></div>
               <div className="flex h-[150px] items-end gap-2 border-b border-[hsl(var(--border))] pb-0 sm:gap-3" data-testid="chart-monthly-usage">
                 {(summary.monthlyUsage || []).map((month) => <div className="group flex h-full flex-1 flex-col items-center justify-end gap-2" key={month.month}><div className="relative w-full max-w-[34px] rounded-t-md bg-[hsl(var(--primary)/.82)] transition-all duration-300 group-hover:bg-[hsl(var(--primary))]" style={{ height: `${Math.max((month.days / maxUsage) * 82, month.days ? 7 : 2)}%` }}><span className="pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 rounded bg-[hsl(var(--foreground))] px-1.5 py-1 font-mono text-[9px] text-[hsl(var(--card))] group-hover:block">{month.days}</span></div><span className="pb-2 font-mono text-[10px] text-[hsl(var(--muted-foreground))]">{month.month.replace('월', '')}</span></div>)}
@@ -40,7 +40,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="surface animate-rise delay-1 p-5 sm:p-6">
-              <SectionHeading label="잔여 연차" link="구성원 관리" onLink={() => setLocation('/employees')} />
+              <SectionHeading label="잔여 연차" link="구성원 관리" onLink={() => setLocation('/admin/employees')} />
               <div className="relative mx-auto my-4 flex h-[150px] w-[150px] items-center justify-center rounded-full" style={{ background: `conic-gradient(hsl(var(--primary)) ${usageRatio}%, hsl(var(--muted)) 0)` }}>
                 <div className="flex h-[116px] w-[116px] flex-col items-center justify-center rounded-full bg-[hsl(var(--card))]"><span className="font-mono text-[28px] font-medium tracking-[-.07em]">{summary.remainingDays}</span><span className="text-[10px] text-[hsl(var(--muted-foreground))]">남은 일수</span></div>
               </div>
@@ -50,11 +50,11 @@ export default function DashboardPage() {
 
           <section className="grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
             <div className="surface animate-rise delay-2 p-5 sm:p-6">
-              <SectionHeading label="승인 대기 중인 신청" link="전체 승인함" onLink={() => setLocation('/requests')} />
-              {summary.pendingRequestCount === 0 || !summary.upcomingLeaves?.length ? <EmptyState title="대기 중인 신청이 없어요" description="새로운 휴가 신청이 도착하면 이곳에서 바로 확인할 수 있어요." /> : <div className="divide-y divide-[hsl(var(--border))]">{summary.upcomingLeaves.slice(0, 4).map((leave) => <button type="button" onClick={() => setLocation('/requests')} data-testid={`button-pending-leave-${leave.id}`} key={leave.id} className="flex w-full items-center gap-3 py-3 text-left transition-colors first:pt-0 last:pb-0 hover:bg-[hsl(var(--muted)/.45)]"><Avatar name={leave.employeeName} color={leave.id % 2 ? 'teal' : 'peach'} /><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-[12px] font-bold">{leave.employeeName}</span><StatusBadge status="pending" /></div><div className="mt-1 text-[11px] text-[hsl(var(--muted-foreground))]">{leaveTypeLabels[leave.leaveType]} · {formatDate(leave.startDate)} · {formatDays(leave.days)}</div></div><ChevronRight size={15} className="text-[hsl(var(--muted-foreground))]" /></button>)}</div>}
+              <SectionHeading label="승인 대기 중인 신청" link="전체 승인함" onLink={() => setLocation('/admin/requests')} />
+              {summary.pendingRequestCount === 0 || !summary.upcomingLeaves?.length ? <EmptyState title="대기 중인 신청이 없어요" description="새로운 휴가 신청이 도착하면 이곳에서 바로 확인할 수 있어요." /> : <div className="divide-y divide-[hsl(var(--border))]">{summary.upcomingLeaves.slice(0, 4).map((leave) => <button type="button" onClick={() => setLocation('/admin/requests')} data-testid={`button-pending-leave-${leave.id}`} key={leave.id} className="flex w-full items-center gap-3 py-3 text-left transition-colors first:pt-0 last:pb-0 hover:bg-[hsl(var(--muted)/.45)]"><Avatar name={leave.employeeName} color={leave.id % 2 ? 'teal' : 'peach'} /><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-[12px] font-bold">{leave.employeeName}</span><StatusBadge status="pending" /></div><div className="mt-1 text-[11px] text-[hsl(var(--muted-foreground))]">{leaveTypeLabels[leave.leaveType]} · {formatDate(leave.startDate)} · {formatDays(leave.days)}</div></div><ChevronRight size={15} className="text-[hsl(var(--muted-foreground))]" /></button>)}</div>}
             </div>
             <div className="surface animate-rise delay-3 overflow-hidden p-5 sm:p-6">
-              <SectionHeading label="다가오는 휴가" link="전체 보기" onLink={() => setLocation('/requests')} />
+              <SectionHeading label="다가오는 휴가" link="전체 보기" onLink={() => setLocation('/admin/requests')} />
               {summary.upcomingLeaves?.length ? <div className="relative ml-2 border-l border-[hsl(var(--border))] pl-5">{summary.upcomingLeaves.slice(0, 4).map((leave, index) => <div key={leave.id} className="relative mb-5 last:mb-0"><div className="absolute -left-[26px] top-1.5 h-2 w-2 rounded-full border-2 border-[hsl(var(--card))] bg-[hsl(var(--primary))]" /><div className="font-mono text-[10px] text-[hsl(var(--primary))]">{formatDate(leave.startDate)}</div><div className="mt-1 text-[12px] font-bold">{leave.employeeName}<span className="ml-2 font-normal text-[hsl(var(--muted-foreground))]">{leaveTypeLabels[leave.leaveType]}</span></div><div className="mt-1 text-[10px] text-[hsl(var(--muted-foreground))]">{formatDays(leave.days)} · {index === 0 ? '가장 가까운 일정' : '예정된 일정'}</div></div>)}</div> : <EmptyState title="예정된 휴가가 없어요" description="승인된 휴가 일정이 이곳에 표시됩니다." />}
             </div>
           </section>

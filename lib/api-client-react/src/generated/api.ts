@@ -21,16 +21,20 @@ import type {
 
 import type {
   AbsenceInput,
+  AdminEmployeeInput,
+  AdminEmployeeUpdateInput,
   DashboardSummary,
   Employee,
   EmployeeRegistrationInput,
+  GetAdminEmployeesParams,
   GetEmployeesParams,
   GetLeaveRequestsParams,
   HealthStatus,
   LeaveBalance,
   LeaveRequest,
   LeaveRequestInput,
-  LeaveRequestStatusInput
+  LeaveRequestStatusInput,
+  ResignEmployeeInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -523,6 +527,382 @@ export function useGetEmployeeBalance<TData = Awaited<ReturnType<typeof getEmplo
 
 
 
+
+export const getGetAdminEmployeesUrl = (params?: GetAdminEmployeesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/employees?${stringifiedParams}` : `/api/admin/employees`
+}
+
+/**
+ * @summary List employees managed by the signed-in administrator
+ */
+export const getAdminEmployees = async (params?: GetAdminEmployeesParams, options?: Parameters<typeof customFetch>[1]): Promise<Employee[]> => {
+
+  return customFetch<Employee[]>(getGetAdminEmployeesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminEmployeesQueryKey = (params?: GetAdminEmployeesParams,) => {
+    return [
+    `/api/admin/employees`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminEmployeesQueryOptions = <TData = Awaited<ReturnType<typeof getAdminEmployees>>, TError = ErrorType<void>>(params?: GetAdminEmployeesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminEmployees>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminEmployeesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminEmployees>>> = ({ signal }) => getAdminEmployees(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminEmployees>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminEmployeesQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminEmployees>>>
+export type GetAdminEmployeesQueryError = ErrorType<void>
+
+
+/**
+ * @summary List employees managed by the signed-in administrator
+ */
+
+export function useGetAdminEmployees<TData = Awaited<ReturnType<typeof getAdminEmployees>>, TError = ErrorType<void>>(
+ params?: GetAdminEmployeesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminEmployees>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminEmployeesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateAdminEmployeeUrl = () => {
+
+
+
+
+  return `/api/admin/employees`
+}
+
+/**
+ * @summary Pre-register an employee account
+ */
+export const createAdminEmployee = async (adminEmployeeInput: AdminEmployeeInput, options?: Parameters<typeof customFetch>[1]): Promise<Employee> => {
+
+  return customFetch<Employee>(getCreateAdminEmployeeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(adminEmployeeInput)
+  }
+);}
+
+
+
+
+
+export const getCreateAdminEmployeeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAdminEmployee>>, TError,{data: BodyType<AdminEmployeeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAdminEmployee>>, TError,{data: BodyType<AdminEmployeeInput>}, TContext> => {
+
+const mutationKey = ['createAdminEmployee'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAdminEmployee>>, {data: BodyType<AdminEmployeeInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAdminEmployee(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAdminEmployeeMutationResult = NonNullable<Awaited<ReturnType<typeof createAdminEmployee>>>
+    export type CreateAdminEmployeeMutationBody = BodyType<AdminEmployeeInput>
+    export type CreateAdminEmployeeMutationError = ErrorType<void>
+
+    /**
+ * @summary Pre-register an employee account
+ */
+export const useCreateAdminEmployee = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAdminEmployee>>, TError,{data: BodyType<AdminEmployeeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAdminEmployee>>,
+        TError,
+        {data: BodyType<AdminEmployeeInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAdminEmployeeMutationOptions(options));
+    }
+
+export const getGetAdminEmployeeUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/employees/${id}`
+}
+
+/**
+ * @summary Get a managed employee
+ */
+export const getAdminEmployee = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<Employee> => {
+
+  return customFetch<Employee>(getGetAdminEmployeeUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminEmployeeQueryKey = (id: number,) => {
+    return [
+    `/api/admin/employees/${id}`
+    ] as const;
+    }
+
+
+export const getGetAdminEmployeeQueryOptions = <TData = Awaited<ReturnType<typeof getAdminEmployee>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminEmployee>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminEmployeeQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminEmployee>>> = ({ signal }) => getAdminEmployee(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminEmployee>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminEmployeeQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminEmployee>>>
+export type GetAdminEmployeeQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a managed employee
+ */
+
+export function useGetAdminEmployee<TData = Awaited<ReturnType<typeof getAdminEmployee>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminEmployee>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminEmployeeQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateAdminEmployeeUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/employees/${id}`
+}
+
+/**
+ * @summary Update a managed employee
+ */
+export const updateAdminEmployee = async (id: number,
+    adminEmployeeUpdateInput: AdminEmployeeUpdateInput, options?: Parameters<typeof customFetch>[1]): Promise<Employee> => {
+
+  return customFetch<Employee>(getUpdateAdminEmployeeUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(adminEmployeeUpdateInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateAdminEmployeeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminEmployee>>, TError,{id: number;data: BodyType<AdminEmployeeUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAdminEmployee>>, TError,{id: number;data: BodyType<AdminEmployeeUpdateInput>}, TContext> => {
+
+const mutationKey = ['updateAdminEmployee'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminEmployee>>, {id: number;data: BodyType<AdminEmployeeUpdateInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateAdminEmployee(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAdminEmployeeMutationResult = NonNullable<Awaited<ReturnType<typeof updateAdminEmployee>>>
+    export type UpdateAdminEmployeeMutationBody = BodyType<AdminEmployeeUpdateInput>
+    export type UpdateAdminEmployeeMutationError = ErrorType<void>
+
+    /**
+ * @summary Update a managed employee
+ */
+export const useUpdateAdminEmployee = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminEmployee>>, TError,{id: number;data: BodyType<AdminEmployeeUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAdminEmployee>>,
+        TError,
+        {id: number;data: BodyType<AdminEmployeeUpdateInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateAdminEmployeeMutationOptions(options));
+    }
+
+export const getResignAdminEmployeeUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/employees/${id}/resign`
+}
+
+/**
+ * @summary Mark a managed employee as resigned
+ */
+export const resignAdminEmployee = async (id: number,
+    resignEmployeeInput: ResignEmployeeInput, options?: Parameters<typeof customFetch>[1]): Promise<Employee> => {
+
+  return customFetch<Employee>(getResignAdminEmployeeUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(resignEmployeeInput)
+  }
+);}
+
+
+
+
+
+export const getResignAdminEmployeeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resignAdminEmployee>>, TError,{id: number;data: BodyType<ResignEmployeeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof resignAdminEmployee>>, TError,{id: number;data: BodyType<ResignEmployeeInput>}, TContext> => {
+
+const mutationKey = ['resignAdminEmployee'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resignAdminEmployee>>, {id: number;data: BodyType<ResignEmployeeInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  resignAdminEmployee(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResignAdminEmployeeMutationResult = NonNullable<Awaited<ReturnType<typeof resignAdminEmployee>>>
+    export type ResignAdminEmployeeMutationBody = BodyType<ResignEmployeeInput>
+    export type ResignAdminEmployeeMutationError = ErrorType<void>
+
+    /**
+ * @summary Mark a managed employee as resigned
+ */
+export const useResignAdminEmployee = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resignAdminEmployee>>, TError,{id: number;data: BodyType<ResignEmployeeInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof resignAdminEmployee>>,
+        TError,
+        {id: number;data: BodyType<ResignEmployeeInput>},
+        TContext
+      > => {
+      return useMutation(getResignAdminEmployeeMutationOptions(options));
+    }
 
 export const getGetLeaveRequestsUrl = (params?: GetLeaveRequestsParams,) => {
   const normalizedParams = new URLSearchParams();

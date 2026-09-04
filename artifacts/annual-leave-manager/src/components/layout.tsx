@@ -6,17 +6,19 @@ import { getGetMyEmployeeQueryKey, useGetMyEmployee } from '@workspace/api-clien
 import { Avatar } from './ui-pieces';
 
 const navItems = [
-  { href: '/', label: '오늘의 현황', icon: LayoutDashboard },
-  { href: '/requests', label: '승인함', icon: ClipboardCheck },
-  { href: '/employees', label: '구성원', icon: Users },
-  { href: '/my-leave', label: '나의 휴가', icon: CalendarDays },
-  { href: '/absence', label: '부재 등록', icon: CalendarOff },
+  { href: '/admin', label: '오늘의 현황', icon: LayoutDashboard },
+  { href: '/admin/requests', label: '승인함', icon: ClipboardCheck },
+  { href: '/admin/employees', label: '구성원', icon: Users },
+  { href: '/admin/absence', label: '부재 등록', icon: CalendarOff },
+];
+
+const employeeNavItems = [
+  { href: '/app', label: '나의 휴가', icon: CalendarDays },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const activePath = location === '/' ? '/' : `/${location.split('/')[1]}`;
   const { user } = useUser();
   const { signOut } = useClerk();
   const profile = useGetMyEmployee({
@@ -25,17 +27,27 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const userName = profile?.name || user?.firstName || user?.fullName || user?.username || '사용자';
   const companyName = profile?.companyName || '무등기업';
-  const visibleNavItems = profile?.role === '관리자'
-    ? navItems
-    : navItems.filter(({ href }) => href === '/' || href === '/my-leave');
+  const isAdmin = profile?.role === '관리자';
+  const visibleNavItems = isAdmin ? navItems : employeeNavItems;
+  
+  // Find active path correctly
+  const isActive = (href: string) => {
+    if (href === '/admin') {
+      return location === '/admin';
+    }
+    if (href === '/app') {
+      return location === '/app' || location === '/my-leave';
+    }
+    return location.startsWith(href);
+  };
   
   return (
     <div className="app-shell flex min-h-[100dvh]">
       {/* Mobile header */}
       <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-[hsl(var(--border))] bg-white px-4 md:hidden">
-        <Link href="/" onClick={() => setMobileOpen(false)} data-testid="link-mobile-logo" className="flex items-center gap-2">
+        <Link href={isAdmin ? "/admin" : "/app"} onClick={() => setMobileOpen(false)} data-testid="link-mobile-logo" className="flex items-center gap-2">
           <BrandMark small />
-          <span className="border-l border-[hsl(var(--border))] pl-2 ml-1 text-xs font-semibold text-[hsl(var(--foreground))]">인사관리 시스템</span>
+          <span className="border-l border-[hsl(var(--border))] pl-2 ml-1 text-xs font-semibold text-[hsl(var(--foreground))]">임직원 인사관리 시스템</span>
         </Link>
         <button type="button" onClick={() => setMobileOpen((open) => !open)} data-testid="button-mobile-menu" className="p-2 text-[hsl(var(--foreground))]">
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -46,10 +58,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className={`fixed inset-y-0 left-0 z-50 w-[240px] -translate-x-full bg-[hsl(var(--sidebar))] border-r border-[hsl(var(--sidebar-border))] transition-transform duration-200 md:translate-x-0 ${mobileOpen ? 'translate-x-0' : ''}`}>
         <div className="flex h-full flex-col">
           <div className="flex h-14 items-center px-6 border-b border-[hsl(var(--sidebar-border))]">
-            <Link href="/" onClick={() => setMobileOpen(false)} data-testid="link-logo" className="flex items-center gap-3">
+            <Link href={isAdmin ? "/admin" : "/app"} onClick={() => setMobileOpen(false)} data-testid="link-logo" className="flex items-center gap-3">
               <BrandMark />
               <div className="border-l border-[hsl(var(--sidebar-border))] pl-3">
-                <div className="text-xs font-bold text-[hsl(var(--sidebar-foreground))]">인사관리 시스템</div>
+                <div className="text-xs font-bold text-[hsl(var(--sidebar-foreground))]">임직원 인사관리 시스템</div>
               </div>
             </Link>
           </div>
@@ -58,9 +70,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="mb-4 px-2 text-xs font-semibold text-[hsl(var(--muted-foreground))]">{companyName}</div>
             <nav className="space-y-1">
               {visibleNavItems.map(({ href, label, icon: Icon }) => {
-                const isActive = activePath === href;
+                const active = isActive(href);
                 return (
-                  <Link key={href} href={href} onClick={() => setMobileOpen(false)} data-testid={`link-nav-${label}`} className={`group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]' : 'text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))]'}`}>
+                  <Link key={href} href={href} onClick={() => setMobileOpen(false)} data-testid={`link-nav-${label}`} className={`group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-colors ${active ? 'bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]' : 'text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))]'}`}>
                     <span className="flex items-center gap-3"><Icon size={16} strokeWidth={2} />{label}</span>
                   </Link>
                 );

@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { EmployeeStatus } from './employeeStatus';
 
 export interface Employee {
   id: number;
@@ -20,4 +21,11 @@ export interface Employee {
   companyName?: string | null;
   /** @nullable */
   email?: string | null;
+  /** @nullable */
+  employeeNumber?: string | null;
+  position: string;
+  status: EmployeeStatus;
+  /** @nullable */
+  resignedAt?: Date | null;
+  ordinaryHourlyWage: number;
 }

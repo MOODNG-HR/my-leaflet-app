@@ -14,6 +14,8 @@ tags:
     description: Dashboard summaries
   - name: employees
     description: Employee directory and leave balances
+  - name: admin-employees
+    description: Administrator employee lifecycle management
   - name: leave-requests
     description: Annual leave request workflows
 paths:
@@ -107,6 +109,104 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LeaveBalance"
+        "404":
+          description: Employee not found
+  /admin/employees:
+    get:
+      operationId: getAdminEmployees
+      tags: [admin-employees]
+      summary: List employees managed by the signed-in administrator
+      parameters:
+        - $ref: "#/components/parameters/Search"
+      responses:
+        "200":
+          description: Employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Employee"
+        "403":
+          description: Administrator access required
+    post:
+      operationId: createAdminEmployee
+      tags: [admin-employees]
+      summary: Pre-register an employee account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminEmployeeInput"
+      responses:
+        "201":
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "409":
+          description: Email or employee number already registered
+  /admin/employees/{id}:
+    get:
+      operationId: getAdminEmployee
+      tags: [admin-employees]
+      summary: Get a managed employee
+      parameters:
+        - $ref: "#/components/parameters/EmployeeId"
+      responses:
+        "200":
+          description: Employee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "404":
+          description: Employee not found
+    patch:
+      operationId: updateAdminEmployee
+      tags: [admin-employees]
+      summary: Update a managed employee
+      parameters:
+        - $ref: "#/components/parameters/EmployeeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminEmployeeUpdateInput"
+      responses:
+        "200":
+          description: Employee updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "404":
+          description: Employee not found
+        "409":
+          description: Email or employee number already registered
+  /admin/employees/{id}/resign:
+    post:
+      operationId: resignAdminEmployee
+      tags: [admin-employees]
+      summary: Mark a managed employee as resigned
+      parameters:
+        - $ref: "#/components/parameters/EmployeeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResignEmployeeInput"
+      responses:
+        "200":
+          description: Employee marked as resigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
         "404":
           description: Employee not found
   /leave-requests:
@@ -262,7 +362,7 @@ components:
         - status
     Employee:
       type: object
-      required: [id, name, department, role, joinedAt, annualAllowance, usedDays, pendingDays, remainingDays]
+      required: [id, name, department, position, role, joinedAt, status, ordinaryHourlyWage, annualAllowance, usedDays, pendingDays, remainingDays]
       properties:
         id:
           type: number
@@ -287,6 +387,18 @@ components:
           type: ["string", "null"]
         email:
           type: ["string", "null"]
+        employeeNumber:
+          type: ["string", "null"]
+        position:
+          type: string
+        status:
+          type: string
+          enum: [active, resigned]
+        resignedAt:
+          type: ["string", "null"]
+          format: date
+        ordinaryHourlyWage:
+          type: number
     EmployeeRegistrationInput:
       type: object
       required: [companyName, name, email]
@@ -300,6 +412,66 @@ components:
         email:
           type: string
           minLength: 3
+    AdminEmployeeInput:
+      type: object
+      required: [employeeNumber, name, email, department, position, role, joinedAt, ordinaryHourlyWage]
+      properties:
+        employeeNumber:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          minLength: 3
+        department:
+          type: string
+          minLength: 1
+        position:
+          type: string
+        role:
+          type: string
+          enum: [직원, 관리자]
+        joinedAt:
+          type: string
+          format: date
+        ordinaryHourlyWage:
+          type: number
+          minimum: 0
+    AdminEmployeeUpdateInput:
+      type: object
+      properties:
+        employeeNumber:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          minLength: 3
+        department:
+          type: string
+          minLength: 1
+        position:
+          type: string
+        role:
+          type: string
+          enum: [직원, 관리자]
+        joinedAt:
+          type: string
+          format: date
+        ordinaryHourlyWage:
+          type: number
+          minimum: 0
+    ResignEmployeeInput:
+      type: object
+      required: [resignedAt]
+      properties:
+        resignedAt:
+          type: string
+          format: date
     LeaveBalance:
       type: object
       required: [employeeId, annualAllowance, usedDays, pendingDays, remainingDays]
