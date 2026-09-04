@@ -130,9 +130,11 @@ export const LeaveType = {
   outing: 'outing',
   wedding_funeral: 'wedding_funeral',
   paid_leave: 'paid_leave',
+  public_leave: 'public_leave',
   sick_leave: 'sick_leave',
   substitute: 'substitute',
   absence: 'absence',
+  attendance_other: 'attendance_other',
   sabbatical: 'sabbatical',
 } as const;
 
@@ -155,6 +157,14 @@ export const LeaveRequestTimeSlot = {
   end: 'end',
 } as const;
 
+export type LeaveRequestRecordSource = typeof LeaveRequestRecordSource[keyof typeof LeaveRequestRecordSource];
+
+
+export const LeaveRequestRecordSource = {
+  employee_request: 'employee_request',
+  admin_attendance: 'admin_attendance',
+} as const;
+
 export interface LeaveRequest {
   id: number;
   employeeId: number;
@@ -173,6 +183,11 @@ export interface LeaveRequest {
   processedAt?: string | null;
   /** @nullable */
   rejectionReason?: string | null;
+  recordSource: LeaveRequestRecordSource;
+  /** @nullable */
+  registeredByEmployeeId?: number | null;
+  /** @nullable */
+  registeredByName?: string | null;
 }
 
 /**
@@ -199,8 +214,20 @@ export interface LeaveRequestInput {
   reason: string;
 }
 
-export interface AbsenceInput {
+export type AttendanceRecordType = typeof AttendanceRecordType[keyof typeof AttendanceRecordType];
+
+
+export const AttendanceRecordType = {
+  annual: 'annual',
+  public_leave: 'public_leave',
+  sick_leave: 'sick_leave',
+  absence: 'absence',
+  attendance_other: 'attendance_other',
+} as const;
+
+export interface AttendanceRecordInput {
   employeeId: number;
+  attendanceType: AttendanceRecordType;
   startDate: string;
   endDate: string;
   /** @minimum 0.5 */

@@ -16,6 +16,10 @@ export const leaveRequestsTable = pgTable("leave_requests", {
   employeeId: integer("employee_id")
     .notNull()
     .references(() => employeesTable.id),
+  registeredByEmployeeId: integer("registered_by_employee_id").references(
+    () => employeesTable.id,
+  ),
+  recordSource: text("record_source").notNull().default("employee_request"),
   leaveType: text("leave_type").notNull(),
   timeSlot: text("time_slot"),
   startDate: date("start_date", { mode: "string" }).notNull(),

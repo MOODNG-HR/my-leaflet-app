@@ -2,8 +2,8 @@ import { and, desc, eq, or, ilike, inArray, sql } from "drizzle-orm";
 import { Router, type IRouter } from "express";
 import { clerkClient, getAuth } from "@clerk/express";
 import {
-  CreateAbsenceBody,
-  CreateAbsenceResponse,
+  CreateAttendanceRecordBody,
+  CreateAttendanceRecordResponse,
   CreateLeaveRequestBody,
   CreateLeaveRequestResponse,
   GetDashboardSummaryResponse,
@@ -24,6 +24,7 @@ import {
 } from "@workspace/api-zod";
 import {
   db,
+  auditLogsTable,
   employeesTable,
   leaveRequestsTable,
 } from "@workspace/db";
@@ -33,6 +34,7 @@ const router: IRouter = Router();
 type RequestWithEmployee = {
   request: typeof leaveRequestsTable.$inferSelect;
   employee: typeof employeesTable.$inferSelect;
+  registeredByName?: string | null;
 };
 
 function normalizeLeaveType(value: string) {
@@ -63,6 +65,9 @@ function toRequestResponse(row: RequestWithEmployee) {
     createdAt: row.request.createdAt,
     processedAt: row.request.processedAt,
     rejectionReason: row.request.rejectionReason,
+    recordSource: row.request.recordSource,
+    registeredByEmployeeId: row.request.registeredByEmployeeId,
+    registeredByName: row.registeredByName ?? null,
   };
 }
 
@@ -166,7 +171,7 @@ function summarizeEmployee(
 }
 
 async function getJoinedRequests(): Promise<RequestWithEmployee[]> {
-  return db
+  const rows = await db
     .select({ request: leaveRequestsTable, employee: employeesTable })
     .from(leaveRequestsTable)
     .innerJoin(
@@ -174,6 +179,27 @@ async function getJoinedRequests(): Promise<RequestWithEmployee[]> {
       eq(leaveRequestsTable.employeeId, employeesTable.id),
     )
     .orderBy(desc(leaveRequestsTable.createdAt));
+  const actorIds = [
+    ...new Set(
+      rows
+        .map(({ request }) => request.registeredByEmployeeId)
+        .filter((id): id is number => id !== null),
+    ),
+  ];
+  const actors =
+    actorIds.length === 0
+      ? []
+      : await db
+          .select({ id: employeesTable.id, name: employeesTable.name })
+          .from(employeesTable)
+          .where(inArray(employeesTable.id, actorIds));
+  const names = new Map(actors.map((actor) => [actor.id, actor.name]));
+  return rows.map((row) => ({
+    ...row,
+    registeredByName: row.request.registeredByEmployeeId
+      ? names.get(row.request.registeredByEmployeeId) ?? null
+      : null,
+  }));
 }
 
 async function getJoinedRequest(id: number): Promise<RequestWithEmployee | null> {
@@ -186,7 +212,14 @@ async function getJoinedRequest(id: number): Promise<RequestWithEmployee | null>
     )
     .where(eq(leaveRequestsTable.id, id));
 
-  return row ?? null;
+  if (!row) return null;
+  const [registeredBy] = row.request.registeredByEmployeeId
+    ? await db
+        .select({ name: employeesTable.name })
+        .from(employeesTable)
+        .where(eq(employeesTable.id, row.request.registeredByEmployeeId))
+    : [];
+  return { ...row, registeredByName: registeredBy?.name ?? null };
 }
 
 router.use(async (req, res, next): Promise<void> => {
@@ -593,6 +626,8 @@ router.post("/leave-requests", async (req, res): Promise<void> => {
     .insert(leaveRequestsTable)
     .values({
       employeeId: employee.id,
+      registeredByEmployeeId: actor.id,
+      recordSource: "employee_request",
       leaveType: parsedBody.data.leaveType,
       timeSlot: parsedBody.data.timeSlot ?? null,
       startDate: parsedBody.data.startDate.toISOString().slice(0, 10),
@@ -607,8 +642,8 @@ router.post("/leave-requests", async (req, res): Promise<void> => {
   res.status(201).json(CreateLeaveRequestResponse.parse(response));
 });
 
-router.post("/attendance/absences", async (req, res): Promise<void> => {
-  const parsedBody = CreateAbsenceBody.safeParse(req.body);
+router.post("/attendance/records", async (req, res): Promise<void> => {
+  const parsedBody = CreateAttendanceRecordBody.safeParse(req.body);
   if (!parsedBody.success) {
     res.status(400).json({ error: parsedBody.error.message });
     return;
@@ -631,7 +666,7 @@ router.post("/attendance/absences", async (req, res): Promise<void> => {
     return;
   }
   const calculatedDays = calculateRequestDays(
-    "absence",
+    parsedBody.data.attendanceType,
     parsedBody.data.startDate,
     parsedBody.data.endDate,
   );
@@ -639,7 +674,11 @@ router.post("/attendance/absences", async (req, res): Promise<void> => {
     res.status(400).json({ error: "부재 기간과 일수가 일치하지 않습니다." });
     return;
   }
-  if (getAnnualAllowance(employee.joinedAt) < 15) {
+  const deductsBalance =
+    parsedBody.data.attendanceType === "annual" ||
+    (parsedBody.data.attendanceType === "absence" &&
+      getAnnualAllowance(employee.joinedAt) < 15);
+  if (deductsBalance) {
     const requests = await db
       .select()
       .from(leaveRequestsTable)
@@ -651,23 +690,46 @@ router.post("/attendance/absences", async (req, res): Promise<void> => {
     }
   }
 
-  const [created] = await db
-    .insert(leaveRequestsTable)
-    .values({
-      employeeId: employee.id,
-      leaveType: "absence",
-      startDate: parsedBody.data.startDate.toISOString().slice(0, 10),
-      endDate: parsedBody.data.endDate.toISOString().slice(0, 10),
-      days: calculatedDays,
-      reason: parsedBody.data.reason,
-      status: "approved",
-      processedAt: new Date(),
-    })
-    .returning();
+  const created = await db.transaction(async (tx) => {
+    const [record] = await tx
+      .insert(leaveRequestsTable)
+      .values({
+        employeeId: employee.id,
+        registeredByEmployeeId: actor.id,
+        recordSource: "admin_attendance",
+        leaveType: parsedBody.data.attendanceType,
+        startDate: parsedBody.data.startDate.toISOString().slice(0, 10),
+        endDate: parsedBody.data.endDate.toISOString().slice(0, 10),
+        days: calculatedDays,
+        reason: parsedBody.data.reason,
+        status: "approved",
+        processedAt: new Date(),
+      })
+      .returning();
+    await tx.insert(auditLogsTable).values({
+      actorEmployeeId: actor.id,
+      targetEmployeeId: employee.id,
+      action: "attendance_record_created",
+      entityType: "leave_request",
+      entityId: record.id,
+      details: {
+        attendanceType: parsedBody.data.attendanceType,
+        startDate: record.startDate,
+        endDate: record.endDate,
+        days: record.days,
+        reason: record.reason,
+      },
+    });
+    return record;
+  });
 
   res.status(201).json(
-    CreateAbsenceResponse.parse(
-      toRequestResponse({ request: created, employee }),
+    CreateAttendanceRecordResponse.parse(
+      toRequestResponse({
+        request: created,
+        employee,
+        registeredByName: actor.name,
+      }),
     ),
   );
 });

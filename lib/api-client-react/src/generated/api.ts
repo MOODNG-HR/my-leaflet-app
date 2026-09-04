@@ -20,9 +20,9 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AbsenceInput,
   AdminEmployeeInput,
   AdminEmployeeUpdateInput,
+  AttendanceRecordInput,
   DashboardSummary,
   Employee,
   EmployeeRegistrationInput,
@@ -1059,25 +1059,25 @@ export const useCreateLeaveRequest = <TError = ErrorType<void>,
       return useMutation(getCreateLeaveRequestMutationOptions(options));
     }
 
-export const getCreateAbsenceUrl = () => {
+export const getCreateAttendanceRecordUrl = () => {
 
 
 
 
-  return `/api/attendance/absences`
+  return `/api/attendance/records`
 }
 
 /**
- * @summary Record an employee absence
+ * @summary Register an employee attendance record as an administrator
  */
-export const createAbsence = async (absenceInput: AbsenceInput, options?: Parameters<typeof customFetch>[1]): Promise<LeaveRequest> => {
+export const createAttendanceRecord = async (attendanceRecordInput: AttendanceRecordInput, options?: Parameters<typeof customFetch>[1]): Promise<LeaveRequest> => {
 
-  return customFetch<LeaveRequest>(getCreateAbsenceUrl(),
+  return customFetch<LeaveRequest>(getCreateAttendanceRecordUrl(),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(absenceInput)
+    body: JSON.stringify(attendanceRecordInput)
   }
 );}
 
@@ -1085,11 +1085,11 @@ export const createAbsence = async (absenceInput: AbsenceInput, options?: Parame
 
 
 
-export const getCreateAbsenceMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAbsence>>, TError,{data: BodyType<AbsenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createAbsence>>, TError,{data: BodyType<AbsenceInput>}, TContext> => {
+export const getCreateAttendanceRecordMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAttendanceRecord>>, TError,{data: BodyType<AttendanceRecordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAttendanceRecord>>, TError,{data: BodyType<AttendanceRecordInput>}, TContext> => {
 
-const mutationKey = ['createAbsence'];
+const mutationKey = ['createAttendanceRecord'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1099,10 +1099,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAbsence>>, {data: BodyType<AbsenceInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAttendanceRecord>>, {data: BodyType<AttendanceRecordInput>}> = (props) => {
           const {data} = props ?? {};
 
-          return  createAbsence(data,requestOptions)
+          return  createAttendanceRecord(data,requestOptions)
         }
 
 
@@ -1112,22 +1112,22 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type CreateAbsenceMutationResult = NonNullable<Awaited<ReturnType<typeof createAbsence>>>
-    export type CreateAbsenceMutationBody = BodyType<AbsenceInput>
-    export type CreateAbsenceMutationError = ErrorType<void>
+    export type CreateAttendanceRecordMutationResult = NonNullable<Awaited<ReturnType<typeof createAttendanceRecord>>>
+    export type CreateAttendanceRecordMutationBody = BodyType<AttendanceRecordInput>
+    export type CreateAttendanceRecordMutationError = ErrorType<void>
 
     /**
- * @summary Record an employee absence
+ * @summary Register an employee attendance record as an administrator
  */
-export const useCreateAbsence = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAbsence>>, TError,{data: BodyType<AbsenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+export const useCreateAttendanceRecord = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAttendanceRecord>>, TError,{data: BodyType<AttendanceRecordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
-        Awaited<ReturnType<typeof createAbsence>>,
+        Awaited<ReturnType<typeof createAttendanceRecord>>,
         TError,
-        {data: BodyType<AbsenceInput>},
+        {data: BodyType<AttendanceRecordInput>},
         TContext
       > => {
-      return useMutation(getCreateAbsenceMutationOptions(options));
+      return useMutation(getCreateAttendanceRecordMutationOptions(options));
     }
 
 export const getGetLeaveRequestUrl = (id: number,) => {

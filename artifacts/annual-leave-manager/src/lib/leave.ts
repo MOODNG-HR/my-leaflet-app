@@ -8,9 +8,11 @@ export const leaveTypeLabels: Record<LeaveType, string> = {
   outing: '외출',
   wedding_funeral: '경조휴가',
   paid_leave: '유급휴가',
+  public_leave: '공가',
   sick_leave: '병가',
   substitute: '대체휴무',
   absence: '결근',
+  attendance_other: '기타',
   sabbatical: '안식월',
 };
 

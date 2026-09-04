@@ -5,9 +5,11 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AttendanceRecordType } from './attendanceRecordType';
 
-export interface AbsenceInput {
+export interface AttendanceRecordInput {
   employeeId: number;
+  attendanceType: AttendanceRecordType;
   startDate: Date;
   endDate: Date;
   /** @minimum 0.5 */

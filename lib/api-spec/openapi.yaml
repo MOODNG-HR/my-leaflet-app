@@ -250,20 +250,20 @@ paths:
                 $ref: "#/components/schemas/LeaveRequest"
         "400":
           description: Invalid request
-  /attendance/absences:
+  /attendance/records:
     post:
-      operationId: createAbsence
+      operationId: createAttendanceRecord
       tags: [leave-requests]
-      summary: Record an employee absence
+      summary: Register an employee attendance record as an administrator
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/AbsenceInput"
+              schema:
+                $ref: "#/components/schemas/AttendanceRecordInput"
       responses:
         "201":
-          description: Recorded absence
+          description: Registered attendance record
           content:
             application/json:
               schema:
@@ -493,13 +493,13 @@ components:
       enum: [pending, approved, rejected, cancelled]
     LeaveType:
       type: string
-      enum: [annual, half_day, quarter_day, early_leave, outing, wedding_funeral, paid_leave, sick_leave, substitute, absence, sabbatical]
+      enum: [annual, half_day, quarter_day, early_leave, outing, wedding_funeral, paid_leave, public_leave, sick_leave, substitute, absence, attendance_other, sabbatical]
     TimeSlot:
       type: string
       enum: [start, end]
     LeaveRequest:
       type: object
-      required: [id, employeeId, employeeName, department, leaveType, startDate, endDate, days, reason, status, createdAt]
+      required: [id, employeeId, employeeName, department, leaveType, startDate, endDate, days, reason, status, createdAt, recordSource]
       properties:
         id:
           type: number
@@ -534,6 +534,13 @@ components:
           format: date-time
         rejectionReason:
           type: ["string", "null"]
+        recordSource:
+          type: string
+          enum: [employee_request, admin_attendance]
+        registeredByEmployeeId:
+          type: ["number", "null"]
+        registeredByName:
+          type: ["string", "null"]
     LeaveRequestInput:
       type: object
       required: [employeeId, leaveType, startDate, endDate, days, reason]
@@ -557,12 +564,17 @@ components:
         reason:
           type: string
           minLength: 1
-    AbsenceInput:
+    AttendanceRecordType:
+      type: string
+      enum: [annual, public_leave, sick_leave, absence, attendance_other]
+    AttendanceRecordInput:
       type: object
-      required: [employeeId, startDate, endDate, days, reason]
+      required: [employeeId, attendanceType, startDate, endDate, days, reason]
       properties:
         employeeId:
           type: number
+        attendanceType:
+          $ref: "#/components/schemas/AttendanceRecordType"
         startDate:
           type: string
           format: date

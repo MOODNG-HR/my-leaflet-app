@@ -9,7 +9,7 @@ const navItems = [
   { href: '/admin', label: '오늘의 현황', icon: LayoutDashboard },
   { href: '/admin/requests', label: '승인함', icon: ClipboardCheck },
   { href: '/admin/employees', label: '구성원', icon: Users },
-  { href: '/admin/absence', label: '부재 등록', icon: CalendarOff },
+  { href: '/admin/attendance', label: '관리자 근태 등록', icon: CalendarOff },
 ];
 
 const employeeNavItems = [

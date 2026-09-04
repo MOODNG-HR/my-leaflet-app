@@ -111,6 +111,9 @@ export default function MyLeavePage() {
                       <div>
                         <div className="flex items-center gap-3">
                           <StatusBadge status={req.status} />
+                          {req.recordSource === 'admin_attendance' && (
+                            <span className="rounded border border-[hsl(var(--primary)/.35)] bg-[hsl(var(--primary)/.08)] px-2 py-0.5 text-[10px] font-bold text-[hsl(var(--primary))]">관리자 등록</span>
+                          )}
                           <span className="font-mono text-[11px] text-[hsl(var(--muted-foreground))]">{formatShortDate(req.createdAt)} 신청</span>
                         </div>
                         <div className="mt-3 flex items-end gap-3">

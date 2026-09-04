@@ -20,7 +20,7 @@ import RequestsPage from '@/pages/requests';
 import EmployeesPage from '@/pages/employees';
 import ApplyPage from '@/pages/apply';
 import MyLeavePage from '@/pages/my-leave';
-import AbsencePage from '@/pages/absence';
+import AttendanceRecordPage from '@/pages/absence';
 import SignInPage from '@/pages/sign-in';
 import SignUpPage from '@/pages/sign-up';
 import AdminEmployeesPage from '@/pages/admin-employees';
@@ -253,7 +253,7 @@ function Router() {
         <Route path="/admin/employees" component={() => <AdminRoute><AppShell><AdminEmployeesPage /></AppShell></AdminRoute>} />
         <Route path="/admin/employees/new" component={() => <AdminRoute><AppShell><AdminEmployeeNewPage /></AppShell></AdminRoute>} />
         <Route path="/admin/employees/:id" component={() => <AdminRoute><AppShell><AdminEmployeeDetailPage /></AppShell></AdminRoute>} />
-        <Route path="/admin/absence" component={() => <AdminRoute><AppShell><AbsencePage /></AppShell></AdminRoute>} />
+        <Route path="/admin/attendance" component={() => <AdminRoute><AppShell><AttendanceRecordPage /></AppShell></AdminRoute>} />
 
         {/* Employee Routes */}
         <Route path="/app" component={() => <EmployeeRoute><AppShell><MyLeavePage /></AppShell></EmployeeRoute>} />

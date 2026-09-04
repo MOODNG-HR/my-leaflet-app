@@ -17,8 +17,10 @@ export const LeaveType = {
   outing: 'outing',
   wedding_funeral: 'wedding_funeral',
   paid_leave: 'paid_leave',
+  public_leave: 'public_leave',
   sick_leave: 'sick_leave',
   substitute: 'substitute',
   absence: 'absence',
+  attendance_other: 'attendance_other',
   sabbatical: 'sabbatical',
 } as const;

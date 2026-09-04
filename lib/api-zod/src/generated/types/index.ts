@@ -6,11 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './absenceInput';
 export * from './adminEmployeeInput';
 export * from './adminEmployeeInputRole';
 export * from './adminEmployeeUpdateInput';
 export * from './adminEmployeeUpdateInputRole';
+export * from './attendanceRecordInput';
+export * from './attendanceRecordType';
 export * from './dashboardSummary';
 export * from './employee';
 export * from './employeeIdQueryParameter';
@@ -24,6 +25,7 @@ export * from './leaveBalance';
 export * from './leaveRequest';
 export * from './leaveRequestInput';
 export * from './leaveRequestInputTimeSlot';
+export * from './leaveRequestRecordSource';
 export * from './leaveRequestStatus';
 export * from './leaveRequestStatusInput';
 export * from './leaveRequestTimeSlot';
