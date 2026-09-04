@@ -1,0 +1,1 @@
+- [Leave entitlement and roles](leave-entitlement-and-roles.md) — use hire-anniversary periods; manager access comes only from verified pre-provisioned identities.

@@ -6,18 +6,26 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './absenceInput';
 export * from './dashboardSummary';
 export * from './employee';
+export * from './employeeIdQueryParameter';
+export * from './employeeRegistrationInput';
 export * from './getEmployeesParams';
 export * from './getLeaveRequestsParams';
 export * from './healthStatus';
 export * from './leaveBalance';
 export * from './leaveRequest';
 export * from './leaveRequestInput';
+export * from './leaveRequestInputTimeSlot';
 export * from './leaveRequestStatus';
 export * from './leaveRequestStatusInput';
+export * from './leaveRequestTimeSlot';
 export * from './leaveType';
 export * from './monthlyLeaveUsage';
+export * from './monthParameter';
 export * from './searchParameter';
 export * from './statusParameter';
+export * from './timeSlot';
 export * from './upcomingLeave';
+export * from './yearParameter';

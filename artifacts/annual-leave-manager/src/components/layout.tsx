@@ -1,18 +1,34 @@
 import { useState, type ReactNode } from 'react';
-import { CalendarDays, ChevronRight, ClipboardCheck, LayoutDashboard, Menu, Users, X } from 'lucide-react';
+import { CalendarDays, CalendarOff, ChevronRight, ClipboardCheck, LayoutDashboard, LogOut, Menu, User, Users, X } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
+import { useClerk, useUser } from '@clerk/react';
+import { getGetMyEmployeeQueryKey, useGetMyEmployee } from '@workspace/api-client-react';
+import { Avatar } from './ui-pieces';
 
 const navItems = [
   { href: '/', label: '오늘의 현황', icon: LayoutDashboard },
   { href: '/requests', label: '승인함', icon: ClipboardCheck },
   { href: '/employees', label: '구성원', icon: Users },
+  { href: '/my-leave', label: '나의 휴가', icon: CalendarDays },
+  { href: '/absence', label: '부재 등록', icon: CalendarOff },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const activePath = location === '/' ? '/' : `/${location.split('/')[1]}`;
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const profile = useGetMyEmployee({
+    query: { queryKey: getGetMyEmployeeQueryKey(), retry: false },
+  }).data;
 
+  const userName = profile?.name || user?.firstName || user?.fullName || user?.username || '사용자';
+  const companyName = profile?.companyName || '우리 회사';
+  const visibleNavItems = profile?.role === '관리자'
+    ? navItems
+    : navItems.filter(({ href }) => href === '/' || href === '/my-leave');
+  
   return (
     <div className="app-shell noise">
       <header className="fixed inset-x-0 top-0 z-40 flex h-[68px] items-center justify-between border-b border-[hsl(var(--border))] bg-[hsl(var(--background)/.9)] px-5 backdrop-blur-md md:hidden">
@@ -33,9 +49,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="mt-0.5 font-mono text-[9px] tracking-[.13em] text-[hsl(var(--sidebar-foreground)/.5)]">연차 관리 데스크</div>
             </div>
           </Link>
-          <div className="mb-3 px-3 font-mono text-[9px] font-medium tracking-[.18em] text-[hsl(var(--sidebar-foreground)/.42)]">우리 회사</div>
+          <div className="mb-3 px-3 font-mono text-[9px] font-medium tracking-[.18em] text-[hsl(var(--sidebar-foreground)/.42)]">{companyName}</div>
           <nav className="space-y-1.5">
-            {navItems.map(({ href, label, icon: Icon }) => {
+            {visibleNavItems.map(({ href, label, icon: Icon }) => {
               const isActive = activePath === href;
               return (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)} data-testid={`link-nav-${label}`} className={`group flex items-center justify-between rounded-xl px-3 py-3 text-[13px] font-semibold transition-colors ${isActive ? 'bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]' : 'text-[hsl(var(--sidebar-foreground)/.72)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]'}`}>
@@ -52,9 +68,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
             <div className="border-t border-[hsl(var(--sidebar-border))] pt-4">
               <div className="flex items-center gap-3 px-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--accent))] text-sm font-extrabold text-[hsl(var(--accent-foreground))]">김</div>
-                <div className="min-w-0"><div className="truncate text-[12px] font-semibold">김민지</div><div className="mt-0.5 text-[10px] text-[hsl(var(--sidebar-foreground)/.5)]">운영 관리자</div></div>
-                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#a6d9a4]" />
+                <Avatar name={userName} color="gold" />
+                <div className="min-w-0 flex-1"><div className="truncate text-[12px] font-semibold">{userName}</div><div className="mt-0.5 text-[10px] text-[hsl(var(--sidebar-foreground)/.5)]">{user?.primaryEmailAddress?.emailAddress}</div></div>
+                <button type="button" onClick={() => signOut()} className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg text-[hsl(var(--sidebar-foreground)/.5)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]">
+                  <LogOut size={14} />
+                </button>
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { LeaveRequestStatus } from './leaveRequestStatus';
+import type { LeaveRequestTimeSlot } from './leaveRequestTimeSlot';
 import type { LeaveType } from './leaveType';
 
 export interface LeaveRequest {
@@ -14,6 +15,8 @@ export interface LeaveRequest {
   employeeName: string;
   department: string;
   leaveType: LeaveType;
+  /** @nullable */
+  timeSlot?: LeaveRequestTimeSlot;
   startDate: Date;
   endDate: Date;
   days: number;

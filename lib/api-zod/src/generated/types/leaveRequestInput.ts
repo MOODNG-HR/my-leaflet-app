@@ -5,14 +5,17 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { LeaveRequestInputTimeSlot } from './leaveRequestInputTimeSlot';
 import type { LeaveType } from './leaveType';
 
 export interface LeaveRequestInput {
   employeeId: number;
   leaveType: LeaveType;
+  /** @nullable */
+  timeSlot?: LeaveRequestInputTimeSlot;
   startDate: Date;
   endDate: Date;
-  /** @minimum 0.5 */
+  /** @minimum 0.25 */
   days: number;
   /** @minLength 1 */
   reason: string;

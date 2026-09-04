@@ -20,8 +20,10 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AbsenceInput,
   DashboardSummary,
   Employee,
+  EmployeeRegistrationInput,
   GetEmployeesParams,
   GetLeaveRequestsParams,
   HealthStatus,
@@ -297,6 +299,154 @@ export function useGetEmployees<TData = Awaited<ReturnType<typeof getEmployees>>
 
 
 
+export const getGetMyEmployeeUrl = () => {
+
+
+
+
+  return `/api/me/employee`
+}
+
+/**
+ * @summary Get the signed-in employee profile
+ */
+export const getMyEmployee = async ( options?: Parameters<typeof customFetch>[1]): Promise<Employee> => {
+
+  return customFetch<Employee>(getGetMyEmployeeUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyEmployeeQueryKey = () => {
+    return [
+    `/api/me/employee`
+    ] as const;
+    }
+
+
+export const getGetMyEmployeeQueryOptions = <TData = Awaited<ReturnType<typeof getMyEmployee>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyEmployee>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyEmployeeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyEmployee>>> = ({ signal }) => getMyEmployee({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyEmployee>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyEmployeeQueryResult = NonNullable<Awaited<ReturnType<typeof getMyEmployee>>>
+export type GetMyEmployeeQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the signed-in employee profile
+ */
+
+export function useGetMyEmployee<TData = Awaited<ReturnType<typeof getMyEmployee>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyEmployee>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyEmployeeQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRegisterMyEmployeeUrl = () => {
+
+
+
+
+  return `/api/me/employee`
+}
+
+/**
+ * @summary Register the signed-in employee profile
+ */
+export const registerMyEmployee = async (employeeRegistrationInput: EmployeeRegistrationInput, options?: Parameters<typeof customFetch>[1]): Promise<Employee> => {
+
+  return customFetch<Employee>(getRegisterMyEmployeeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(employeeRegistrationInput)
+  }
+);}
+
+
+
+
+
+export const getRegisterMyEmployeeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerMyEmployee>>, TError,{data: BodyType<EmployeeRegistrationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof registerMyEmployee>>, TError,{data: BodyType<EmployeeRegistrationInput>}, TContext> => {
+
+const mutationKey = ['registerMyEmployee'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof registerMyEmployee>>, {data: BodyType<EmployeeRegistrationInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  registerMyEmployee(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RegisterMyEmployeeMutationResult = NonNullable<Awaited<ReturnType<typeof registerMyEmployee>>>
+    export type RegisterMyEmployeeMutationBody = BodyType<EmployeeRegistrationInput>
+    export type RegisterMyEmployeeMutationError = ErrorType<void>
+
+    /**
+ * @summary Register the signed-in employee profile
+ */
+export const useRegisterMyEmployee = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerMyEmployee>>, TError,{data: BodyType<EmployeeRegistrationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof registerMyEmployee>>,
+        TError,
+        {data: BodyType<EmployeeRegistrationInput>},
+        TContext
+      > => {
+      return useMutation(getRegisterMyEmployeeMutationOptions(options));
+    }
+
 export const getGetEmployeeBalanceUrl = (id: number,) => {
 
 
@@ -527,6 +677,77 @@ export const useCreateLeaveRequest = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getCreateLeaveRequestMutationOptions(options));
+    }
+
+export const getCreateAbsenceUrl = () => {
+
+
+
+
+  return `/api/attendance/absences`
+}
+
+/**
+ * @summary Record an employee absence
+ */
+export const createAbsence = async (absenceInput: AbsenceInput, options?: Parameters<typeof customFetch>[1]): Promise<LeaveRequest> => {
+
+  return customFetch<LeaveRequest>(getCreateAbsenceUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(absenceInput)
+  }
+);}
+
+
+
+
+
+export const getCreateAbsenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAbsence>>, TError,{data: BodyType<AbsenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAbsence>>, TError,{data: BodyType<AbsenceInput>}, TContext> => {
+
+const mutationKey = ['createAbsence'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAbsence>>, {data: BodyType<AbsenceInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAbsence(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAbsenceMutationResult = NonNullable<Awaited<ReturnType<typeof createAbsence>>>
+    export type CreateAbsenceMutationBody = BodyType<AbsenceInput>
+    export type CreateAbsenceMutationError = ErrorType<void>
+
+    /**
+ * @summary Record an employee absence
+ */
+export const useCreateAbsence = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAbsence>>, TError,{data: BodyType<AbsenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAbsence>>,
+        TError,
+        {data: BodyType<AbsenceInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAbsenceMutationOptions(options));
     }
 
 export const getGetLeaveRequestUrl = (id: number,) => {

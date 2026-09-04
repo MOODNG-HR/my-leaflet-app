@@ -5,11 +5,21 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { EmployeeIdQueryParameter } from './employeeIdQueryParameter';
 import type { LeaveRequestStatus } from './leaveRequestStatus';
+import type { MonthParameter } from './monthParameter';
 import type { SearchParameter } from './searchParameter';
 import type { StatusParameter } from './statusParameter';
+import type { YearParameter } from './yearParameter';
 
 export type GetLeaveRequestsParams = {
 status?: StatusParameter;
 search?: SearchParameter;
+year?: YearParameter;
+/**
+ * @minimum 1
+ * @maximum 12
+ */
+month?: MonthParameter;
+employeeId?: EmployeeIdQueryParameter;
 };

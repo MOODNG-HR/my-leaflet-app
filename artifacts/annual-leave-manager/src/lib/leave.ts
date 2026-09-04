@@ -2,9 +2,16 @@ import type { LeaveRequestStatus, LeaveType } from '@workspace/api-client-react'
 
 export const leaveTypeLabels: Record<LeaveType, string> = {
   annual: '연차',
-  half_day_am: '오전 반차',
-  half_day_pm: '오후 반차',
-  personal: '개인 사유',
+  half_day: '반차',
+  quarter_day: '반반차',
+  early_leave: '조퇴',
+  outing: '외출',
+  wedding_funeral: '경조휴가',
+  paid_leave: '유급휴가',
+  sick_leave: '병가',
+  substitute: '대체휴무',
+  absence: '결근',
+  sabbatical: '안식월',
 };
 
 export const statusLabels: Record<LeaveRequestStatus, string> = {

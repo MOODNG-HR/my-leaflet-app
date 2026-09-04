@@ -11,7 +11,14 @@ export type LeaveType = typeof LeaveType[keyof typeof LeaveType];
 
 export const LeaveType = {
   annual: 'annual',
-  half_day_am: 'half_day_am',
-  half_day_pm: 'half_day_pm',
-  personal: 'personal',
+  half_day: 'half_day',
+  quarter_day: 'quarter_day',
+  early_leave: 'early_leave',
+  outing: 'outing',
+  wedding_funeral: 'wedding_funeral',
+  paid_leave: 'paid_leave',
+  sick_leave: 'sick_leave',
+  substitute: 'substitute',
+  absence: 'absence',
+  sabbatical: 'sabbatical',
 } as const;

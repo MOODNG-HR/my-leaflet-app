@@ -19,29 +19,101 @@
 }
 
 :root {
-  --button-outline: rgba(12, 52, 55, .14); --badge-outline: rgba(12, 52, 55, .08);
-  --opaque-button-border-intensity: -8; --elevate-1: rgba(19, 77, 77, .045); --elevate-2: rgba(19, 77, 77, .09);
-  --background: 42 36% 96%; --foreground: 190 31% 17%; --border: 40 21% 86%;
-  --card: 42 40% 98%; --card-foreground: 190 31% 17%; --card-border: 40 24% 88%;
-  --sidebar: 190 42% 19%; --sidebar-foreground: 42 34% 93%; --sidebar-border: 190 36% 27%;
-  --sidebar-primary: 39 92% 66%; --sidebar-primary-foreground: 190 42% 19%; --sidebar-accent: 190 34% 27%; --sidebar-accent-foreground: 42 34% 96%; --sidebar-ring: 39 92% 66%;
-  --popover: 42 40% 98%; --popover-foreground: 190 31% 17%; --popover-border: 40 24% 88%;
-  --primary: 181 50% 31%; --primary-foreground: 42 40% 98%; --secondary: 39 90% 67%; --secondary-foreground: 190 42% 19%;
-  --muted: 40 26% 91%; --muted-foreground: 190 12% 45%; --accent: 14 78% 69%; --accent-foreground: 190 42% 19%;
-  --destructive: 4 64% 52%; --destructive-foreground: 42 40% 98%; --input: 40 21% 82%; --ring: 181 50% 31%;
-  --app-font-sans: 'Noto Sans KR', 'Manrope', sans-serif; --app-font-mono: 'DM Mono', monospace; --radius: .9rem; --tracking-normal: -.01em;
-  --primary-border: hsl(var(--primary)); --secondary-border: hsl(var(--secondary)); --muted-border: hsl(var(--muted)); --accent-border: hsl(var(--accent)); --destructive-border: hsl(var(--destructive));
+  /* Architectural, structured, dependable palette */
+  --background: 44 20% 96%;
+  --foreground: 160 25% 15%;
+  --border: 44 15% 86%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 160 25% 15%;
+  --card-border: 44 15% 90%;
+  
+  --sidebar: 160 25% 12%;
+  --sidebar-foreground: 44 20% 96%;
+  --sidebar-border: 160 20% 18%;
+  
+  --sidebar-primary: 36 80% 65%;
+  --sidebar-primary-foreground: 160 25% 12%;
+  
+  --sidebar-accent: 160 20% 20%;
+  --sidebar-accent-foreground: 44 20% 96%;
+  --sidebar-ring: 36 80% 65%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 160 25% 15%;
+  --popover-border: 44 15% 90%;
+  
+  --primary: 160 30% 18%;
+  --primary-foreground: 44 20% 96%;
+  
+  --secondary: 44 20% 90%;
+  --secondary-foreground: 160 25% 15%;
+  
+  --muted: 44 15% 92%;
+  --muted-foreground: 160 10% 45%;
+  
+  --accent: 36 80% 65%;
+  --accent-foreground: 160 25% 12%;
+  
+  --destructive: 3 60% 55%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --input: 44 15% 82%;
+  --ring: 160 30% 18%;
+  
+  --app-font-sans: 'Noto Sans KR', 'Manrope', sans-serif;
+  --app-font-mono: 'DM Mono', monospace;
+  --radius: .9rem;
+  --tracking-normal: -.01em;
+  
+  --primary-border: hsl(var(--primary));
+  --secondary-border: hsl(var(--secondary));
+  --muted-border: hsl(var(--muted));
+  --accent-border: hsl(var(--accent));
+  --destructive-border: hsl(var(--destructive));
 }
 
 .dark {
-  --background: 190 42% 11%; --foreground: 42 34% 93%; --border: 190 26% 25%;
-  --card: 190 37% 15%; --card-foreground: 42 34% 93%; --card-border: 190 26% 25%;
-  --sidebar: 190 47% 8%; --sidebar-foreground: 42 34% 93%; --sidebar-border: 190 26% 18%;
-  --sidebar-primary: 39 92% 66%; --sidebar-primary-foreground: 190 42% 12%; --sidebar-accent: 190 32% 18%; --sidebar-accent-foreground: 42 34% 93%; --sidebar-ring: 39 92% 66%;
-  --popover: 190 37% 15%; --popover-foreground: 42 34% 93%; --popover-border: 190 26% 25%;
-  --primary: 39 90% 67%; --primary-foreground: 190 42% 12%; --secondary: 181 39% 31%; --secondary-foreground: 42 34% 93%;
-  --muted: 190 27% 21%; --muted-foreground: 42 15% 68%; --accent: 14 70% 62%; --accent-foreground: 190 42% 12%;
-  --destructive: 4 64% 58%; --destructive-foreground: 42 40% 98%; --input: 190 26% 29%; --ring: 39 90% 67%;
+  --background: 160 25% 10%;
+  --foreground: 44 20% 90%;
+  --border: 160 20% 18%;
+  
+  --card: 160 22% 14%;
+  --card-foreground: 44 20% 90%;
+  --card-border: 160 20% 18%;
+  
+  --sidebar: 160 28% 8%;
+  --sidebar-foreground: 44 20% 90%;
+  --sidebar-border: 160 20% 16%;
+  
+  --sidebar-primary: 36 80% 60%;
+  --sidebar-primary-foreground: 160 28% 8%;
+  
+  --sidebar-accent: 160 20% 16%;
+  --sidebar-accent-foreground: 44 20% 90%;
+  --sidebar-ring: 36 80% 60%;
+  
+  --popover: 160 22% 14%;
+  --popover-foreground: 44 20% 90%;
+  --popover-border: 160 20% 18%;
+  
+  --primary: 36 80% 60%;
+  --primary-foreground: 160 25% 10%;
+  
+  --secondary: 160 20% 18%;
+  --secondary-foreground: 44 20% 90%;
+  
+  --muted: 160 15% 20%;
+  --muted-foreground: 44 10% 65%;
+  
+  --accent: 36 80% 60%;
+  --accent-foreground: 160 25% 10%;
+  
+  --destructive: 3 60% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --input: 160 15% 25%;
+  --ring: 36 80% 60%;
 }
 
 @layer base {
@@ -52,10 +124,10 @@
 
 @layer components {
   .app-shell { min-height: 100dvh; background: hsl(var(--background)); }
-  .surface { background: hsl(var(--card)); border: 1px solid hsl(var(--card-border)); border-radius: 1rem; box-shadow: 0 12px 30px rgba(30, 63, 60, .045); }
+  .surface { background: hsl(var(--card)); border: 1px solid hsl(var(--card-border)); border-radius: 1rem; box-shadow: 0 12px 30px rgba(0, 0, 0, .03); }
   .eyebrow { font-family: var(--app-font-mono); font-size: .68rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
   .skeleton { background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--card)) 50%, hsl(var(--muted)) 75%); background-size: 200% 100%; animation: skeleton 1.5s ease-in-out infinite; }
-  .noise::after { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .022; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E"); z-index: 50; }
+  .noise::after { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E"); z-index: 50; }
 }
 @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

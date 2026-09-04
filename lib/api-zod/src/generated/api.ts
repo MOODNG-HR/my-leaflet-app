@@ -32,7 +32,7 @@ export const GetDashboardSummaryResponse = zod.object({
   "upcomingLeaves": zod.array(zod.object({
   "id": zod.number(),
   "employeeName": zod.string(),
-  "leaveType": zod.enum(['annual', 'half_day_am', 'half_day_pm', 'personal']),
+  "leaveType": zod.enum(['annual', 'half_day', 'quarter_day', 'early_leave', 'outing', 'wedding_funeral', 'paid_leave', 'sick_leave', 'substitute', 'absence', 'sabbatical']),
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "days": zod.number()
@@ -60,9 +60,59 @@ export const GetEmployeesResponseItem = zod.object({
   "annualAllowance": zod.number(),
   "usedDays": zod.number(),
   "pendingDays": zod.number(),
-  "remainingDays": zod.number()
+  "remainingDays": zod.number(),
+  "companyName": zod.string().nullish(),
+  "email": zod.string().nullish()
 })
 export const GetEmployeesResponse = zod.array(GetEmployeesResponseItem)
+
+
+/**
+ * @summary Get the signed-in employee profile
+ */
+export const GetMyEmployeeResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "department": zod.string(),
+  "role": zod.string(),
+  "joinedAt": zod.coerce.date(),
+  "annualAllowance": zod.number(),
+  "usedDays": zod.number(),
+  "pendingDays": zod.number(),
+  "remainingDays": zod.number(),
+  "companyName": zod.string().nullish(),
+  "email": zod.string().nullish()
+})
+
+
+/**
+ * @summary Register the signed-in employee profile
+ */
+
+
+export const registerMyEmployeeBodyEmailMin = 3;
+
+
+
+export const RegisterMyEmployeeBody = zod.object({
+  "companyName": zod.string().min(1),
+  "name": zod.string().min(1),
+  "email": zod.string().min(registerMyEmployeeBodyEmailMin)
+})
+
+export const RegisterMyEmployeeResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "department": zod.string(),
+  "role": zod.string(),
+  "joinedAt": zod.coerce.date(),
+  "annualAllowance": zod.number(),
+  "usedDays": zod.number(),
+  "pendingDays": zod.number(),
+  "remainingDays": zod.number(),
+  "companyName": zod.string().nullish(),
+  "email": zod.string().nullish()
+})
 
 
 /**
@@ -84,9 +134,16 @@ export const GetEmployeeBalanceResponse = zod.object({
 /**
  * @summary List leave requests
  */
+export const getLeaveRequestsQueryMonthMax = 12;
+
+
+
 export const GetLeaveRequestsQueryParams = zod.object({
   "status": zod.enum(['pending', 'approved', 'rejected', 'cancelled']).optional(),
-  "search": zod.coerce.string().optional()
+  "search": zod.coerce.string().optional(),
+  "year": zod.coerce.number().optional(),
+  "month": zod.coerce.number().min(1).max(getLeaveRequestsQueryMonthMax).optional(),
+  "employeeId": zod.coerce.number().optional()
 })
 
 export const GetLeaveRequestsResponseItem = zod.object({
@@ -94,7 +151,8 @@ export const GetLeaveRequestsResponseItem = zod.object({
   "employeeId": zod.number(),
   "employeeName": zod.string(),
   "department": zod.string(),
-  "leaveType": zod.enum(['annual', 'half_day_am', 'half_day_pm', 'personal']),
+  "leaveType": zod.enum(['annual', 'half_day', 'quarter_day', 'early_leave', 'outing', 'wedding_funeral', 'paid_leave', 'sick_leave', 'substitute', 'absence', 'sabbatical']),
+  "timeSlot": zod.union([zod.literal('start'),zod.literal('end'),zod.literal(null)]).nullish(),
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "days": zod.number(),
@@ -110,14 +168,15 @@ export const GetLeaveRequestsResponse = zod.array(GetLeaveRequestsResponseItem)
 /**
  * @summary Submit an annual leave request
  */
-export const createLeaveRequestBodyDaysMin = 0.5;
+export const createLeaveRequestBodyDaysMin = 0.25;
 
 
 
 
 export const CreateLeaveRequestBody = zod.object({
   "employeeId": zod.number(),
-  "leaveType": zod.enum(['annual', 'half_day_am', 'half_day_pm', 'personal']),
+  "leaveType": zod.enum(['annual', 'half_day', 'quarter_day', 'early_leave', 'outing', 'wedding_funeral', 'paid_leave', 'sick_leave', 'substitute', 'absence', 'sabbatical']),
+  "timeSlot": zod.union([zod.literal('start'),zod.literal('end'),zod.literal(null)]).nullish(),
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "days": zod.number().min(createLeaveRequestBodyDaysMin),
@@ -129,7 +188,42 @@ export const CreateLeaveRequestResponse = zod.object({
   "employeeId": zod.number(),
   "employeeName": zod.string(),
   "department": zod.string(),
-  "leaveType": zod.enum(['annual', 'half_day_am', 'half_day_pm', 'personal']),
+  "leaveType": zod.enum(['annual', 'half_day', 'quarter_day', 'early_leave', 'outing', 'wedding_funeral', 'paid_leave', 'sick_leave', 'substitute', 'absence', 'sabbatical']),
+  "timeSlot": zod.union([zod.literal('start'),zod.literal('end'),zod.literal(null)]).nullish(),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date(),
+  "days": zod.number(),
+  "reason": zod.string(),
+  "status": zod.enum(['pending', 'approved', 'rejected', 'cancelled']),
+  "createdAt": zod.coerce.date(),
+  "processedAt": zod.coerce.date().nullish(),
+  "rejectionReason": zod.string().nullish()
+})
+
+
+/**
+ * @summary Record an employee absence
+ */
+export const createAbsenceBodyDaysMin = 0.5;
+
+
+
+
+export const CreateAbsenceBody = zod.object({
+  "employeeId": zod.number(),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date(),
+  "days": zod.number().min(createAbsenceBodyDaysMin),
+  "reason": zod.string().min(1)
+})
+
+export const CreateAbsenceResponse = zod.object({
+  "id": zod.number(),
+  "employeeId": zod.number(),
+  "employeeName": zod.string(),
+  "department": zod.string(),
+  "leaveType": zod.enum(['annual', 'half_day', 'quarter_day', 'early_leave', 'outing', 'wedding_funeral', 'paid_leave', 'sick_leave', 'substitute', 'absence', 'sabbatical']),
+  "timeSlot": zod.union([zod.literal('start'),zod.literal('end'),zod.literal(null)]).nullish(),
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "days": zod.number(),
@@ -153,7 +247,8 @@ export const GetLeaveRequestResponse = zod.object({
   "employeeId": zod.number(),
   "employeeName": zod.string(),
   "department": zod.string(),
-  "leaveType": zod.enum(['annual', 'half_day_am', 'half_day_pm', 'personal']),
+  "leaveType": zod.enum(['annual', 'half_day', 'quarter_day', 'early_leave', 'outing', 'wedding_funeral', 'paid_leave', 'sick_leave', 'substitute', 'absence', 'sabbatical']),
+  "timeSlot": zod.union([zod.literal('start'),zod.literal('end'),zod.literal(null)]).nullish(),
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "days": zod.number(),
@@ -182,7 +277,8 @@ export const UpdateLeaveRequestStatusResponse = zod.object({
   "employeeId": zod.number(),
   "employeeName": zod.string(),
   "department": zod.string(),
-  "leaveType": zod.enum(['annual', 'half_day_am', 'half_day_pm', 'personal']),
+  "leaveType": zod.enum(['annual', 'half_day', 'quarter_day', 'early_leave', 'outing', 'wedding_funeral', 'paid_leave', 'sick_leave', 'substitute', 'absence', 'sabbatical']),
+  "timeSlot": zod.union([zod.literal('start'),zod.literal('end'),zod.literal(null)]).nullish(),
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "days": zod.number(),

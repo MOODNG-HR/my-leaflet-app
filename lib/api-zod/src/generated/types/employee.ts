@@ -16,4 +16,8 @@ export interface Employee {
   usedDays: number;
   pendingDays: number;
   remainingDays: number;
+  /** @nullable */
+  companyName?: string | null;
+  /** @nullable */
+  email?: string | null;
 }

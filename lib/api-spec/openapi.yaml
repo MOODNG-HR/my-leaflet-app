@@ -58,6 +58,41 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Employee"
+  /me/employee:
+    get:
+      operationId: getMyEmployee
+      tags: [employees]
+      summary: Get the signed-in employee profile
+      responses:
+        "200":
+          description: Employee profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "401":
+          description: Authentication required
+        "404":
+          description: Employee profile not registered
+    post:
+      operationId: registerMyEmployee
+      tags: [employees]
+      summary: Register the signed-in employee profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeRegistrationInput"
+      responses:
+        "201":
+          description: Registered employee profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "401":
+          description: Authentication required
   /employees/{id}/balance:
     get:
       operationId: getEmployeeBalance
@@ -82,6 +117,9 @@ paths:
       parameters:
         - $ref: "#/components/parameters/Status"
         - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Year"
+        - $ref: "#/components/parameters/Month"
+        - $ref: "#/components/parameters/EmployeeIdQuery"
       responses:
         "200":
           description: Leave requests
@@ -104,6 +142,26 @@ paths:
       responses:
         "201":
           description: Created leave request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveRequest"
+        "400":
+          description: Invalid request
+  /attendance/absences:
+    post:
+      operationId: createAbsence
+      tags: [leave-requests]
+      summary: Record an employee absence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AbsenceInput"
+      responses:
+        "201":
+          description: Recorded absence
           content:
             application/json:
               schema:
@@ -174,6 +232,26 @@ components:
       required: false
       schema:
         $ref: "#/components/schemas/LeaveRequestStatus"
+    Year:
+      name: year
+      in: query
+      required: false
+      schema:
+        type: number
+    Month:
+      name: month
+      in: query
+      required: false
+      schema:
+        type: number
+        minimum: 1
+        maximum: 12
+    EmployeeIdQuery:
+      name: employeeId
+      in: query
+      required: false
+      schema:
+        type: number
   schemas:
     HealthStatus:
       type: object
@@ -205,6 +283,23 @@ components:
           type: number
         remainingDays:
           type: number
+        companyName:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+    EmployeeRegistrationInput:
+      type: object
+      required: [companyName, name, email]
+      properties:
+        companyName:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          minLength: 3
     LeaveBalance:
       type: object
       required: [employeeId, annualAllowance, usedDays, pendingDays, remainingDays]
@@ -224,7 +319,10 @@ components:
       enum: [pending, approved, rejected, cancelled]
     LeaveType:
       type: string
-      enum: [annual, half_day_am, half_day_pm, personal]
+      enum: [annual, half_day, quarter_day, early_leave, outing, wedding_funeral, paid_leave, sick_leave, substitute, absence, sabbatical]
+    TimeSlot:
+      type: string
+      enum: [start, end]
     LeaveRequest:
       type: object
       required: [id, employeeId, employeeName, department, leaveType, startDate, endDate, days, reason, status, createdAt]
@@ -239,6 +337,9 @@ components:
           type: string
         leaveType:
           $ref: "#/components/schemas/LeaveType"
+        timeSlot:
+          type: ["string", "null"]
+          enum: [start, end, null]
         startDate:
           type: string
           format: date
@@ -267,6 +368,27 @@ components:
           type: number
         leaveType:
           $ref: "#/components/schemas/LeaveType"
+        timeSlot:
+          type: ["string", "null"]
+          enum: [start, end, null]
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        days:
+          type: number
+          minimum: 0.25
+        reason:
+          type: string
+          minLength: 1
+    AbsenceInput:
+      type: object
+      required: [employeeId, startDate, endDate, days, reason]
+      properties:
+        employeeId:
+          type: number
         startDate:
           type: string
           format: date

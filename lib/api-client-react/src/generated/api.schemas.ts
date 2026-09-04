@@ -19,6 +19,19 @@ export interface Employee {
   usedDays: number;
   pendingDays: number;
   remainingDays: number;
+  /** @nullable */
+  companyName?: string | null;
+  /** @nullable */
+  email?: string | null;
+}
+
+export interface EmployeeRegistrationInput {
+  /** @minLength 1 */
+  companyName: string;
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 3 */
+  email: string;
 }
 
 export interface LeaveBalance {
@@ -44,9 +57,35 @@ export type LeaveType = typeof LeaveType[keyof typeof LeaveType];
 
 export const LeaveType = {
   annual: 'annual',
-  half_day_am: 'half_day_am',
-  half_day_pm: 'half_day_pm',
-  personal: 'personal',
+  half_day: 'half_day',
+  quarter_day: 'quarter_day',
+  early_leave: 'early_leave',
+  outing: 'outing',
+  wedding_funeral: 'wedding_funeral',
+  paid_leave: 'paid_leave',
+  sick_leave: 'sick_leave',
+  substitute: 'substitute',
+  absence: 'absence',
+  sabbatical: 'sabbatical',
+} as const;
+
+export type TimeSlot = typeof TimeSlot[keyof typeof TimeSlot];
+
+
+export const TimeSlot = {
+  start: 'start',
+  end: 'end',
+} as const;
+
+/**
+ * @nullable
+ */
+export type LeaveRequestTimeSlot = typeof LeaveRequestTimeSlot[keyof typeof LeaveRequestTimeSlot] | null;
+
+
+export const LeaveRequestTimeSlot = {
+  start: 'start',
+  end: 'end',
 } as const;
 
 export interface LeaveRequest {
@@ -55,6 +94,8 @@ export interface LeaveRequest {
   employeeName: string;
   department: string;
   leaveType: LeaveType;
+  /** @nullable */
+  timeSlot?: LeaveRequestTimeSlot;
   startDate: string;
   endDate: string;
   days: number;
@@ -67,9 +108,32 @@ export interface LeaveRequest {
   rejectionReason?: string | null;
 }
 
+/**
+ * @nullable
+ */
+export type LeaveRequestInputTimeSlot = typeof LeaveRequestInputTimeSlot[keyof typeof LeaveRequestInputTimeSlot] | null;
+
+
+export const LeaveRequestInputTimeSlot = {
+  start: 'start',
+  end: 'end',
+} as const;
+
 export interface LeaveRequestInput {
   employeeId: number;
   leaveType: LeaveType;
+  /** @nullable */
+  timeSlot?: LeaveRequestInputTimeSlot;
+  startDate: string;
+  endDate: string;
+  /** @minimum 0.25 */
+  days: number;
+  /** @minLength 1 */
+  reason: string;
+}
+
+export interface AbsenceInput {
+  employeeId: number;
   startDate: string;
   endDate: string;
   /** @minimum 0.5 */
@@ -115,6 +179,12 @@ export type SearchParameter = string;
 
 export type StatusParameter = LeaveRequestStatus;
 
+export type YearParameter = number;
+
+export type MonthParameter = number;
+
+export type EmployeeIdQueryParameter = number;
+
 export type GetEmployeesParams = {
 search?: SearchParameter;
 };
@@ -122,5 +192,12 @@ search?: SearchParameter;
 export type GetLeaveRequestsParams = {
 status?: StatusParameter;
 search?: SearchParameter;
+year?: YearParameter;
+/**
+ * @minimum 1
+ * @maximum 12
+ */
+month?: MonthParameter;
+employeeId?: EmployeeIdQueryParameter;
 };
 

@@ -17,6 +17,7 @@ export const leaveRequestsTable = pgTable("leave_requests", {
     .notNull()
     .references(() => employeesTable.id),
   leaveType: text("leave_type").notNull(),
+  timeSlot: text("time_slot"),
   startDate: date("start_date", { mode: "string" }).notNull(),
   endDate: date("end_date", { mode: "string" }).notNull(),
   days: real("days").notNull(),
