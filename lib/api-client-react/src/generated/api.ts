@@ -235,7 +235,7 @@ export const getGetEmployeesUrl = (params?: GetEmployeesParams,) => {
 }
 
 /**
- * @summary List employees with current leave balances
+ * @summary List company employees with current leave balances (administrator only)
  */
 export const getEmployees = async (params?: GetEmployeesParams, options?: Parameters<typeof customFetch>[1]): Promise<Employee[]> => {
 
@@ -259,7 +259,7 @@ export const getGetEmployeesQueryKey = (params?: GetEmployeesParams,) => {
     }
 
 
-export const getGetEmployeesQueryOptions = <TData = Awaited<ReturnType<typeof getEmployees>>, TError = ErrorType<unknown>>(params?: GetEmployeesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetEmployeesQueryOptions = <TData = Awaited<ReturnType<typeof getEmployees>>, TError = ErrorType<void>>(params?: GetEmployeesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -278,14 +278,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetEmployeesQueryResult = NonNullable<Awaited<ReturnType<typeof getEmployees>>>
-export type GetEmployeesQueryError = ErrorType<unknown>
+export type GetEmployeesQueryError = ErrorType<void>
 
 
 /**
- * @summary List employees with current leave balances
+ * @summary List company employees with current leave balances (administrator only)
  */
 
-export function useGetEmployees<TData = Awaited<ReturnType<typeof getEmployees>>, TError = ErrorType<unknown>>(
+export function useGetEmployees<TData = Awaited<ReturnType<typeof getEmployees>>, TError = ErrorType<void>>(
  params?: GetEmployeesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {

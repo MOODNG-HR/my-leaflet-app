@@ -48,7 +48,7 @@ paths:
     get:
       operationId: getEmployees
       tags: [employees]
-      summary: List employees with current leave balances
+      summary: List company employees with current leave balances (administrator only)
       parameters:
         - $ref: "#/components/parameters/Search"
       responses:
@@ -60,6 +60,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Employee"
+        "403":
+          description: Administrator access required
   /me/employee:
     get:
       operationId: getMyEmployee

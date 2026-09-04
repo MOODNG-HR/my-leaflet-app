@@ -1,4 +1,4 @@
-import { desc, eq, or, ilike, sql } from "drizzle-orm";
+import { and, desc, eq, or, ilike, inArray, sql } from "drizzle-orm";
 import { Router, type IRouter } from "express";
 import { clerkClient, getAuth } from "@clerk/express";
 import {
@@ -397,11 +397,16 @@ router.get("/employees", async (req, res): Promise<void> => {
   }
 
   const actor = res.locals.actor as typeof employeesTable.$inferSelect;
-  const [allEmployees, requests] = await Promise.all([
-    db
-      .select()
-      .from(employeesTable)
-      .where(
+  if (actor.role !== "관리자") {
+    res.status(403).json({ error: "관리자 권한이 필요합니다." });
+    return;
+  }
+  const employees = await db
+    .select()
+    .from(employeesTable)
+    .where(
+      and(
+        eq(employeesTable.companyName, actor.companyName ?? ""),
         parsedQuery.data.search
           ? or(
               ilike(employeesTable.name, `%${parsedQuery.data.search}%`),
@@ -409,15 +414,21 @@ router.get("/employees", async (req, res): Promise<void> => {
               ilike(employeesTable.role, `%${parsedQuery.data.search}%`),
             )
           : undefined,
-      )
-      .orderBy(employeesTable.name),
-    db.select().from(leaveRequestsTable),
-  ]);
-
-  const employees =
-    actor.role === "관리자"
-      ? allEmployees.filter((employee) => employee.companyName === actor.companyName)
-      : allEmployees.filter((employee) => employee.id === actor.id);
+      ),
+    )
+    .orderBy(employeesTable.name);
+  const requests =
+    employees.length === 0
+      ? []
+      : await db
+          .select()
+          .from(leaveRequestsTable)
+          .where(
+            inArray(
+              leaveRequestsTable.employeeId,
+              employees.map((employee) => employee.id),
+            ),
+          );
   res.json(
     GetEmployeesResponse.parse(
       employees.map((employee) => summarizeEmployee(employee, requests)),
@@ -474,6 +485,14 @@ router.get("/leave-requests", async (req, res): Promise<void> => {
 
   const rows = await getJoinedRequests();
   const actor = res.locals.actor as typeof employeesTable.$inferSelect;
+  if (
+    actor.role !== "관리자" &&
+    parsedQuery.data.employeeId &&
+    parsedQuery.data.employeeId !== actor.id
+  ) {
+    res.status(403).json({ error: "다른 직원의 신청 내역을 조회할 수 없습니다." });
+    return;
+  }
   const search = parsedQuery.data.search?.toLowerCase();
   const filtered = rows.filter(({ request, employee }) => {
     if (employee.companyName !== actor.companyName) return false;
@@ -514,15 +533,24 @@ router.post("/leave-requests", async (req, res): Promise<void> => {
     return;
   }
 
+  const actor = res.locals.actor as typeof employeesTable.$inferSelect;
+  if (
+    actor.role !== "관리자" &&
+    parsedBody.data.employeeId !== actor.id
+  ) {
+    res.status(403).json({ error: "본인의 휴가만 신청할 수 있습니다." });
+    return;
+  }
+  const targetEmployeeId =
+    actor.role === "관리자" ? parsedBody.data.employeeId : actor.id;
   const [employee] = await db
     .select()
     .from(employeesTable)
-    .where(eq(employeesTable.id, parsedBody.data.employeeId));
+    .where(eq(employeesTable.id, targetEmployeeId));
   if (!employee) {
     res.status(400).json({ error: "직원을 찾을 수 없습니다." });
     return;
   }
-  const actor = res.locals.actor as typeof employeesTable.$inferSelect;
   if (
     employee.companyName !== actor.companyName ||
     (actor.role !== "관리자" && employee.id !== actor.id)

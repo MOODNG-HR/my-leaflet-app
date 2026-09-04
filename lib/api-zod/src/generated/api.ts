@@ -45,7 +45,7 @@ export const GetDashboardSummaryResponse = zod.object({
 
 
 /**
- * @summary List employees with current leave balances
+ * @summary List company employees with current leave balances (administrator only)
  */
 export const GetEmployeesQueryParams = zod.object({
   "search": zod.coerce.string().optional()

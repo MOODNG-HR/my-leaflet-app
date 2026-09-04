@@ -14,3 +14,9 @@ Manager access must never be granted from a self-entered company name or unverif
 **Why:** First-registrant or unverified-email bootstrap allows tenant takeover and exposes company-wide leave data.
 
 **How to apply:** Keep authorization server-side, scope data by company, require case-insensitive global email uniqueness, and bind only an existing active record to a verified identity. Serialize last-admin demotion and resignation decisions.
+
+Regular employees may access only their own profile, balance, and leave requests. Employee identity must always come from the Clerk-linked server session, never from a client-selected employee ID.
+
+**Why:** Hiding other employees in the UI does not prevent direct API requests with forged path, query, or body IDs.
+
+**How to apply:** Keep employee directories and company-wide data admin-only; reject mismatched IDs and derive employee write targets from the authenticated actor.
