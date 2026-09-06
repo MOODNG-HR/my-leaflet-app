@@ -8,6 +8,7 @@ import {
   getGetMyEmployeeQueryKey,
   useGetMyEmployee,
   useRegisterMyEmployee,
+  setAuthTokenGetter,
 } from '@workspace/api-client-react';
 
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -344,11 +345,21 @@ const clerkLocalization = {
   },
 };
 
+// Wires the API client's auth token getter to Clerk's session token.
+// Must live inside <ClerkProvider> so useAuth() is available.
+function ApiClientSetup() {
+  const { getToken } = useAuth();
+  useEffect(() => {
+    setAuthTokenGetter(async () => await getToken());
+  }, [getToken]);
+  return null;
+}
+
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
 
   return (
-    <ClerkProvider 
+    <ClerkProvider
       publishableKey={clerkPubKey}
       proxyUrl={clerkProxyUrl}
       signInUrl={`${basePath}/sign-in`}
@@ -358,6 +369,7 @@ function ClerkProviderWithRoutes() {
       appearance={clerkAppearance}
       localization={clerkLocalization}
     >
+      <ApiClientSetup />
       <QueryClientProvider client={queryClient}>
         <ProfileBootstrap />
         <TooltipProvider>
